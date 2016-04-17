@@ -9,7 +9,8 @@
 *.pch
 
 # Libraries
-*.lib
+/dev/*.lib
+/src/*.lib
 *.a
 *.la
 *.lo
@@ -43,7 +44,8 @@
 *.o
 *.lst
 *.lnp
-*.bak
+/dev/*.bak
+/src/*.bak
 *.Vishwas
 *.bin
 *.fed
