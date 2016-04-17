@@ -1,0 +1,1 @@
+Schematics of all parts of the player

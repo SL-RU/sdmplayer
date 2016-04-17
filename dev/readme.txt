@@ -1,0 +1,1 @@
+Here there are staff which I am(was) using during development of sdmplayer. For example: test projects for libraries development, test projects of some stm32 features, datasheets, schemes, images and etc.
