@@ -1,4 +1,4 @@
-update=22/04/2016 20:52:07
+update=22/04/2016 22:18:06
 version=1
 last_client=kicad
 [pcbnew]
@@ -64,3 +64,13 @@ LibName34=bq27510
 LibName35=lm3671
 [general]
 version=1
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=Pcbnew
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
