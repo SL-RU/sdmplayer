@@ -2038,4 +2038,6 @@ Wire Wire Line
 	3650 4950 1400 4950
 Wire Wire Line
 	1400 5250 3650 5250
+Text Notes 10550 7650 0    60   ~ 0
+0.01
 $EndSCHEMATC
