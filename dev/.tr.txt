@@ -1,0 +1,11 @@
+http://www.chipdip.ru/product/lp-503759-pcm/    acc
+http://www.chipdip.ru/product/stm32f103rct6-2/  mcu
+http://www.chipdip.ru/product0/9000079760/      r2
+http://www.chipdip.ru/product0/9000079744/      r1
+http://chip69.ru/catalog/3452                   chrgr
+http://chip69.ru/catalog/1242                   inductor
+http://www.chipdip.ru/product0/9000275418/      8MHz
+http://www.chipdip.ru/product0/9000275424/      32768Hz
+http://www.chipdip.ru/product/at24c256c-sshl-t/ eeprom
+http://ru.aliexpress.com/item/Free-shipping-2pcs-lotNew-original-VS1053B-L-VS1053-VS1053B-VLSI-2014-QFP48/1955646243.html?spm=2114.03010208.3.9.FJpTjs&ws_ab_test=searchweb201556_7,searchweb201602_2_10017_10005_10006_10034_10021_507_10022_508_10020_10018_10019,searchweb201603_1&btsid=e8448728-d6f0-48f3-a8c2-9e17c99e01a3
+http://ru.aliexpress.com/item/2PCS-PT1502-IC/32270586886.html?spm=2114.03010208.3.2.TkJ3UZ&ws_ab_test=searchweb201556_7,searchweb201602_2_10017_10005_10006_10034_10021_507_10022_508_10020_10018_10019,searchweb201603_1&btsid=ea2ee512-7435-40b2-952d-9d3133c333f3

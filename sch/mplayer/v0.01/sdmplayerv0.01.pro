@@ -1,4 +1,4 @@
-update=16/04/2016 20:37:31
+update=22/04/2016 20:52:07
 version=1
 last_client=kicad
 [pcbnew]
@@ -23,8 +23,6 @@ ModuleOutlineThickness=0.150000000000
 [cvpcb]
 version=1
 NetIExt=net
-[general]
-version=1
 [eeschema]
 version=1
 LibDir=
@@ -61,4 +59,8 @@ LibName29=valves
 LibName30=C:/Program Files/KiCad/share/kicad/library/stm32
 LibName31=vs10xx
 LibName32=MicroSD
-LibName33=tp4056
+LibName33=bq24090
+LibName34=bq27510
+LibName35=lm3671
+[general]
+version=1
