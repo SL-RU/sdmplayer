@@ -1496,7 +1496,7 @@ U 1 1 571C047B
 P 5300 6350
 F 0 "R16" V 5380 6350 50  0000 C CNN
 F 1 "0.01" V 5300 6350 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603_HandSoldering" V 5230 6350 50  0001 C CNN
+F 2 "Resistors_SMD:R_1206_HandSoldering" V 5230 6350 50  0001 C CNN
 F 3 "" H 5300 6350 50  0000 C CNN
 	1    5300 6350
 	1    0    0    -1  
@@ -1712,7 +1712,7 @@ F 3 "" H 4850 7600 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4850 7600 4850 7600
+	4600 7600 4850 7600
 Connection ~ 4850 7000
 Connection ~ 4850 7600
 Text Notes 7350 7500 0    60   ~ 0
@@ -2005,4 +2005,5 @@ $EndComp
 Wire Wire Line
 	6500 5400 6500 5500
 Connection ~ 6500 5400
+Connection ~ 4600 7600
 $EndSCHEMATC
