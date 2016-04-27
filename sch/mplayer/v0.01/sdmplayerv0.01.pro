@@ -1,4 +1,4 @@
-update=22/04/2016 22:19:56
+update=28/04/2016 00:38:54
 version=1
 last_client=kicad
 [pcbnew]
@@ -20,9 +20,6 @@ SolderMaskMinWidth=0.000000000000
 DrawSegmentWidth=0.200000000000
 BoardOutlineThickness=0.100000000000
 ModuleOutlineThickness=0.150000000000
-[cvpcb]
-version=1
-NetIExt=net
 [eeschema]
 version=1
 LibDir=
@@ -62,8 +59,6 @@ LibName32=MicroSD
 LibName33=bq24090
 LibName34=bq27510
 LibName35=lm3671
-[general]
-version=1
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
@@ -74,3 +69,8 @@ NetFmtName=Pcbnew
 SpiceForceRefPrefix=0
 SpiceUseNetNumbers=0
 LabSize=60
+[cvpcb]
+version=1
+NetIExt=net
+[general]
+version=1
