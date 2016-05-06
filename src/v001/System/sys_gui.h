@@ -13,7 +13,7 @@ void sys_draw_gui_header(void);
 
 void sys_draw_gui_menu(void);
 void sys_update_gui_menu(void);
-uint8_t sys_input_handler_gui_menu(uint8_t key, uint32_t arg);
+uint8_t sys_input_handler_gui_menu(int8_t key, uint32_t arg);
 
 
 

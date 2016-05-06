@@ -2,21 +2,22 @@
 
 uint16_t keyboard_adcLevels[] = {540, 1080, 1630, 2210, 2960, 4020};
 
-uint32_t keyboard_ADC_values[40];
+uint32_t keyboard_ADC_values[40], keyboard_pressTime = 0;
 int8_t keyboard_lastKey = -1,
 	keyboard_lastLeftLvl = -1,
-	keyboard_lastRightLvl = -1;
+	keyboard_lastRightLvl = -1,
+	keyboard_wasClick = 0;
 
-void (*keyboard_KeyPressHandler)(int8_t);
+void (*keyboard_KeyPressHandler)(int8_t, uint32_t);
 
 
-void keyboard_handle(int8_t key)
+void keyboard_handle(int8_t key, uint32_t arg)
 {
 	if(key >= 0)
-		(*keyboard_KeyPressHandler)(key);
+		(*keyboard_KeyPressHandler)(key, arg);
 }
 
-void keyboard_setPressHandler(void (*KeyPressHandler)(int8_t))
+void keyboard_setHandler(void (*KeyPressHandler)(int8_t, uint32_t))
 {
 	keyboard_KeyPressHandler = KeyPressHandler;
 }
@@ -44,12 +45,48 @@ void keyboard_update()
 	
 	HAL_GPIO_WritePin(keyboard_on, GPIO_PIN_RESET);
 	
-	if(kll == -1 && klr == -1 &&
-			(cul >= 0 || cur >= 0))
+	if((cul >= 0 || cur >= 0))
 	{
 		int8_t cu = keyboard_lvl_to_key(cul, cur);
-		keyboard_handle(cu);
+		if(cu == keyboard_lastKey) //if last levels equal to current
+		{
+			if(keyboard_wasClick == 0)
+			{
+				if(HAL_GetTick() - keyboard_pressTime >= 10)
+				{
+					keyboard_handle(cu, 0); //call handler for click button event
+					keyboard_wasClick = 1;
+				}
+			}
+			else
+			{
+				keyboard_handle(cu, HAL_GetTick() - keyboard_pressTime); //call handler for press button event
+			}
+		}
+		else
+		{
+			if(keyboard_lastKey >= 0) //if there is last key
+			{
+				keyboard_handle(keyboard_lastKey, 1); //call handler for release button event
+			}
+			keyboard_lastKey = -1;
+			keyboard_pressTime = 0;
+			if(cu >= 0)
+			{
+				keyboard_pressTime = HAL_GetTick();
+				keyboard_wasClick = 0;
+			}
+		}
 		keyboard_lastKey = cu;
+	}
+	else
+	{
+		if(keyboard_lastKey >= 0) //if there is last key
+			{
+				keyboard_handle(keyboard_lastKey, 1); //call handler for release button event
+			}
+		keyboard_pressTime = 0;
+		keyboard_lastKey = -1;
 	}
 }
 

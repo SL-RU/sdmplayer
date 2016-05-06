@@ -14,6 +14,7 @@
 #include "gui.h"
 
 #include "ff.h"
+#include "rtc.h"
 
 #include "stdlib.h"
 #include "string.h"
@@ -25,16 +26,7 @@
 
 #include "sys_gui.h"
 
-typedef struct{
-	uint8_t id;
-	
-	uint8_t (*start)(void);
-	uint8_t (*stop)(void);
-	void (*draw)(void);
-	void (*update)(void);
-	void (*input_handler)(uint8_t, uint32_t);
-} AppInfo;
-
+#include "app.h"
 
 uint8_t sys_init(void);
 
@@ -45,16 +37,14 @@ uint8_t sys_start_threads(void);
 
 void sys_draw(void const * argument);                            //thread drawing GUI
 void sys_update(void const * argument);                          //thread updating system
-uint8_t sys_input_handler(uint8_t key, uint32_t state);           //keyboard handler
+void sys_input_handler(int8_t key, uint32_t state);           //keyboard handler
 
+void sys_thread_keyboard(void const * argument);
+void sys_thread_player(void const * argument);
+void sys_thread_hw(void const * argument);
 
-
-void sys_start_app_id(uint8_t id);
-
-void sys_update_app(void); //thread updating current app
-void sys_draw_app(void);   //draw current app
-uint8_t sys_input_handler_app(uint8_t key, uint32_t arg); //current app's keyboard handler
 
 
 
 #endif
+

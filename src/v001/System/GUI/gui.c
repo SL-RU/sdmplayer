@@ -2,48 +2,71 @@
 
 uint8_t GUI_Inited = HAL_ERROR;
 
-//current list element
-GUI_ListData *gui_CurList;
 
 //global vars for message
 char *GUI_MessageText;
 void (*GUI_MessageDraw)();
 uint8_t (*GUI_MessageInput)(uint8_t);
 
-//current app 
-void (*GUI_curapp_draw)();
-uint8_t (*GUI_curapp_input)(uint8_t);
+FontDef_t* GUI_DefFont;
+
 
 uint8_t gui_init()
 {
-	gui_CurList = 0;
 	GUI_Inited = SSD1306_Init();
+	gui_setFont(&Font_7x10);
 	return GUI_Inited;
+}
+
+
+void gui_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t col)
+{
+	SSD1306_DrawLine(x1, y1, x2, y2, col);
+}
+void gui_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t brdColor)
+{
+	SSD1306_DrawRectangle(x, y, w, h, brdColor);
+}
+void gui_circle(uint8_t x, uint8_t y, uint8_t r, uint8_t brdColor)
+{
+	SSD1306_DrawCircle(x, y, r, brdColor);
+}
+void gui_rect_fill(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t bgColor, uint8_t brdColor)
+{
+	SSD1306_DrawFilledRectangle(x, y, w, h, bgColor);
+	if(bgColor != brdColor)
+		SSD1306_DrawRectangle(x, y, w, h, brdColor);
+}
+void gui_circle_fill(uint8_t x, uint8_t y, uint8_t r, uint8_t bgColor, uint8_t brdColor)
+{
+	SSD1306_DrawFilledCircle(x, y, r, brdColor);
+	if(bgColor != brdColor)
+		SSD1306_DrawCircle(x, y, r, brdColor);
+}
+
+void gui_setFont(FontDef_t* font)
+{
+	GUI_DefFont = font;
 }
 
 void gui_text(char* txt, uint8_t x, uint8_t y, uint8_t col)
 {
-	SSD1306_GotoXY(x, y + 1);
-	SSD1306_Puts(txt, &GUI_DefFont, col);
+	SSD1306_GotoXY(x, y);
+	SSD1306_Puts(txt, GUI_DefFont, col);
 }
 
-void gui_set_cur_app(void (*appDraw)(), uint8_t (*appInput)(uint8_t))
-{
-	GUI_curapp_draw = appDraw;
-	GUI_curapp_input = appInput;
-}
 
 void gui_lable(char* txt, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t bg, uint8_t border)
 {
-	SSD1306_DrawFilledRectangle(x, y, w, h, bg);
+	gui_rect_fill(x, y, w, h, bg, border);
 	if(border)
-		SSD1306_DrawRectangle(x, y, w, h, !bg);
+		gui_rect(x, y, w, h, !bg);
 	uint8_t max_x = x + border;
-	SSD1306_GotoXY(x+border, y+border + (h - GUI_DefFont.FontHeight)/2 + 1);
-	while(*txt && max_x + GUI_DefFont.FontWidth < SSD1306_WIDTH && max_x + GUI_DefFont.FontWidth < x + w)
+	SSD1306_GotoXY(x+border, y+border + (h - GUI_DefFont->FontHeight)/2 + 1);
+	while(*txt && max_x + GUI_DefFont->FontWidth < SSD1306_WIDTH && max_x + GUI_DefFont->FontWidth < x + w)
 	{
-		max_x += GUI_DefFont.FontWidth;
-		SSD1306_Putc(*txt, &GUI_DefFont, !bg);
+		max_x += GUI_DefFont->FontWidth;
+		SSD1306_Putc(*txt, GUI_DefFont, !bg);
 		*txt++;
 	}
 }
@@ -55,21 +78,21 @@ void gui_lable_multiline(char* txt, uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
 	SSD1306_GotoXY(x+border, cy);
 	while(*txt)
 	{
-		if(max_x + GUI_DefFont.FontWidth > SSD1306_WIDTH || max_x + GUI_DefFont.FontWidth > x + w || *txt == '\n' || *txt == '\r')
+		if(max_x + GUI_DefFont->FontWidth > SSD1306_WIDTH || max_x + GUI_DefFont->FontWidth > x + w || *txt == '\n' || *txt == '\r')
 		{
-			cy += GUI_DefFont.FontHeight;
+			cy += GUI_DefFont->FontHeight;
 			SSD1306_GotoXY(x+border, cy);
 			max_x = x + border;
-			if(cy + GUI_DefFont.FontHeight > y + h - border)
+			if(cy + GUI_DefFont->FontHeight > y + h - border)
 			{
 				if(border)
 					SSD1306_DrawRectangle(x, y, w, h, !bg);
 				return;
 			}
 		}
-		max_x += GUI_DefFont.FontWidth;
+		max_x += GUI_DefFont->FontWidth;
 		if(*txt != '\n' && *txt != '\r')
-			SSD1306_Putc(*txt, &GUI_DefFont, !bg);
+			SSD1306_Putc(*txt, GUI_DefFont, !bg);
 		*txt++;
 	}
 	if(border)
@@ -78,7 +101,7 @@ void gui_lable_multiline(char* txt, uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
 
 void gui_ticker(GUI_TickerData *dt)
 {
-	uint8_t maxlen = (dt->w - dt->border*2)/GUI_DefFont.FontWidth, len = 0;
+	uint8_t maxlen = (dt->w - dt->border*2)/GUI_DefFont->FontWidth, len = 0;
 	int	shift = 0;
 	while(*(dt->text + len) != 0)
 		len++;
@@ -177,14 +200,9 @@ void gui_remove_listItem(GUI_ListItemData *ld)
 	free(ld->text);
 	free(ld);
 }
-void gui_set_curList(GUI_ListData* list)
+
+uint8_t gui_draw_list(GUI_ListData* gui_CurList)
 {
-	gui_CurList = list;
-}
-uint8_t gui_draw_list()
-{
-	if(gui_CurList == 0)
-		return 0;
 	SSD1306_DrawFilledRectangle(gui_CurList->x, gui_CurList->y, gui_CurList->w, gui_CurList->h, 0);
 	SSD1306_DrawRectangle(gui_CurList->x, gui_CurList->y, gui_CurList->w, gui_CurList->h, 1);
 	
@@ -192,10 +210,10 @@ uint8_t gui_draw_list()
 	if(gui_CurList->header != 0)
 	{
 		gui_text(gui_CurList->header, gui_CurList->x + 1, gui_CurList->y, 1);
-		ry += GUI_DefFont.FontHeight;
+		ry += GUI_DefFont->FontHeight;
 	}
 	
-	uint8_t maxC = ((gui_CurList->h - 3) / GUI_DefFont.FontHeight) - (gui_CurList->header != 0);
+	uint8_t maxC = ((gui_CurList->h - 3) / GUI_DefFont->FontHeight) - (gui_CurList->header != 0);
 	
 	uint16_t i;
 	if(maxC >= gui_CurList->ItemsCount)
@@ -203,9 +221,9 @@ uint8_t gui_draw_list()
 		for(i = 0; i < gui_CurList->ItemsCount; i++)
 		{
 			if(i != gui_CurList->selectedItem)
-				gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 0, 0);
+				gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 			else
-				gui_lable(gui_CurList->items[i]->text, gui_CurList->x +1 , ry + i*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 1, 0);
+				gui_lable(gui_CurList->items[i]->text, gui_CurList->x +1 , ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
 		}
 	}
 	else
@@ -215,9 +233,9 @@ uint8_t gui_draw_list()
 			for(i = gui_CurList->ItemsCount - maxC; i < gui_CurList->ItemsCount; i++)
 			{
 				if(i != gui_CurList->selectedItem)
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 0, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 1, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
 			}
 		}
 		else if(gui_CurList->selectedItem < maxC / 2)
@@ -225,9 +243,9 @@ uint8_t gui_draw_list()
 			for(i = 0; i < maxC; i++)
 			{
 				if(i != gui_CurList->selectedItem)
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 0, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 1, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
 			}
 		}
 		else
@@ -235,9 +253,9 @@ uint8_t gui_draw_list()
 			for(i = gui_CurList->selectedItem - maxC/2; i < gui_CurList->selectedItem - maxC/2 + maxC; i++)
 			{
 				if(i != gui_CurList->selectedItem)
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 0, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
-					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont.FontHeight, gui_CurList->w - 3, GUI_DefFont.FontHeight, 1, 0);
+					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
 			}
 		}
 	}
@@ -249,7 +267,7 @@ uint8_t gui_draw_list()
 	SSD1306_DrawLine(gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy,  gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy + sli_h, 1);
 }
 
-uint8_t gui_input_list(int8_t key)
+uint8_t gui_input_list(GUI_ListData* gui_CurList, int8_t key)
 {
 	if(gui_CurList == 0)
 		return 0;

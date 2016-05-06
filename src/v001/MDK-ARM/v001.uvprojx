@@ -555,6 +555,11 @@
               <FileType>1</FileType>
               <FilePath>..\Applications\app_test.c</FilePath>
             </File>
+            <File>
+              <FileName>app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\app.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

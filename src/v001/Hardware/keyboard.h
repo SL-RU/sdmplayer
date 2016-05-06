@@ -20,9 +20,9 @@ uint8_t keyboard_init(void);
 
 void keyboard_update(void);
 
-void keyboard_setPressHandler(void (*KeyPressHandler)(int8_t));
+void keyboard_setHandler(void (*KeyPressHandler)(int8_t, uint32_t));
 	
-void keyboard_handle(int8_t key);
+void keyboard_handle(int8_t key, uint32_t arg);
 
 int8_t keyboard_adc_to_lvl(uint16_t adc);
 

@@ -58,14 +58,14 @@ void MX_RTC_Init(void)
   sTime.Minutes = 0x0;
   sTime.Seconds = 0x0;
 
-  HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD);
+  //HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD);
 
   DateToUpdate.WeekDay = RTC_WEEKDAY_MONDAY;
   DateToUpdate.Month = RTC_MONTH_JANUARY;
   DateToUpdate.Date = 0x1;
   DateToUpdate.Year = 0x0;
 
-  HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD);
+  //HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD);
 
 }
 

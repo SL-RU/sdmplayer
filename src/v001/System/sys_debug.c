@@ -6,6 +6,7 @@ uint8_t f = 0;
 
 uint8_t sys_debug_init(void)
 {
+	return SYS_OK;
 }
 
 void slog(const char *format, ...)

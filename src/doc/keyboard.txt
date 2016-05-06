@@ -1,0 +1,21 @@
+keyboard.h
+keyboard.c
+
+You need to enable dma for ADC!
+
+
+1) register input_handler:
+uint8_t input_handler(int8_t key, uint32_t state)
+{
+	blah();
+}
+...
+keyboard_setHandler(&input_handler);
+
+2) when something happens with keyboard, handler will be called. 
+	ARGs:
+		key - key's id with which something interacts
+		arg - type of event:
+			0 - button clicked
+			1 - button released
+			5...infinity - press time in ms

@@ -5,7 +5,10 @@
 #include "fonts.h"
 #include "ssd1306.h"
 
-#define GUI_DefFont Font_7x10
+
+
+#define DEFAULT_FONT Font_7x10
+
 
 /**
  * @brief  Initialize gui
@@ -14,7 +17,15 @@
  */
 uint8_t gui_init(void);
 
-void gui_set_cur_app(void (*appDraw)(), uint8_t (*appInput)(uint8_t));
+
+void gui_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t col);
+void gui_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t brdColor);
+void gui_circle(uint8_t x, uint8_t y, uint8_t r, uint8_t brdColor);
+void gui_rect_fill(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t bgColor, uint8_t brdColor);
+void gui_circle_fill(uint8_t x, uint8_t y, uint8_t r, uint8_t bgColor, uint8_t brdColor);
+
+
+void gui_setFont(FontDef_t* font);
 
 /**
  * @brief  Simple draw text
@@ -162,25 +173,19 @@ GUI_ListItemData* gui_create_listItem(char* text, uint32_t arg,
  */
 void gui_remove_listItem(GUI_ListItemData *ld);
 /**
- * @brief  Ser current GUI_List element
+ * @brief  draw current GUI_List
+ * @note   DO NOT USE IT BY YOURSELF! DO NOT FORGET gui_set_curList(data) first!
  * @param  ld: GUI_ListItemData
  * @retval None
  */
-void gui_set_curList(GUI_ListData* list);
+uint8_t gui_draw_list(GUI_ListData* list);
 /**
  * @brief  draw current GUI_List
  * @note   DO NOT USE IT BY YOURSELF! DO NOT FORGET gui_set_curList(data) first!
  * @param  ld: GUI_ListItemData
  * @retval None
  */
-uint8_t gui_draw_list(void);
-/**
- * @brief  draw current GUI_List
- * @note   DO NOT USE IT BY YOURSELF! DO NOT FORGET gui_set_curList(data) first!
- * @param  ld: GUI_ListItemData
- * @retval None
- */
-uint8_t gui_input_list(int8_t key);
+uint8_t gui_input_list(GUI_ListData* list, int8_t key);
 
 
 void gui_showMessage(char* text);
