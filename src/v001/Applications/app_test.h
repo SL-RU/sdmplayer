@@ -2,6 +2,7 @@
 #define APP_TEST_H
 
 #include "app.h"
+#include "vs1053.h"
 
 AppInfo* app_test(void);
 

@@ -42,9 +42,9 @@ void SYS_ERROR_HANDLER(void)
 	{
 		LED1_off();
 		LED2_on();
-		HAL_Delay(100);
+		HAL_Delay(500);
 		LED1_on();
 		LED2_off();
-		HAL_Delay(100);
+		HAL_Delay(500);
 	}
 }

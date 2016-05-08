@@ -22,8 +22,6 @@ GUI_ListData* list;
 uint8_t app_test_start(void)
 {
 	
-	
-	
 	slog("test started");
 	return SYS_OK;
 }
@@ -47,14 +45,36 @@ void app_test_draw(void)
 	sprintf(bu, "key: %c\narg: %d", keyboard_key_to_char(LKey), LArg);
 	gui_lable(bu, 0, 30, 128, 33, 1, 1);
 }
+uint8_t ineeeee = 0;
 void app_test_update(void)
 {
+	if(!ineeeee)
+	{
+		ineeeee = 1;
+		VS1053_Init();
+	}
 }
+FIL fl;
+
+void player(void const * argument)
+{
+	VS1053_play(&fl, "Shockwave.mp3");
+}
+uint8_t p = 0;
 void app_test_input_handler(int8_t key, uint32_t arg)
 {
 	LKey = key;
 	LArg = arg;
 	if(arg == 0)
 		cnt ++;
+	if(key == 5 && arg == 1 && !p)
+	{
+		
+		uint8_t res = f_open(&fl, "Shockwave.mp3", FA_OPEN_EXISTING | FA_READ);
+		slog("file open: %d", res);
+		osThreadDef(pl_THREAD, player, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+		osThreadCreate(osThread(pl_THREAD), NULL);
+		p = 1;
+	}
 }
 

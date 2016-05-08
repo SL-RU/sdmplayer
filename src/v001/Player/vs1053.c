@@ -7,12 +7,13 @@ static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 	int prescaler = SPI_BAUDRATEPRESCALER_256;
 
 	if (speed == 0)
-		prescaler = SPI_BAUDRATEPRESCALER_32;
+		prescaler = SPI_BAUDRATEPRESCALER_64;
 	else if (speed == 1)
 		prescaler = SPI_BAUDRATEPRESCALER_2;
-
+	taskENTER_CRITICAL();
 	VS1053_SPI.Init.BaudRatePrescaler = prescaler;
 	HAL_SPI_Init(&VS1053_SPI);
+	taskEXIT_CRITICAL();
 }
 
 void vs1053_trans(uint8_t data)
@@ -30,33 +31,38 @@ uint8_t vs1053_txrx(uint8_t data)
 //DREQ goes low. We then have to wait for DREQ to go high again.
 //XCS should be low for the full duration of operation.
 void vs1053_write_reg(uint8_t addressbyte, uint8_t highbyte, uint8_t lowbyte){
-  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating IC is available
-  HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_RESET); //Select control
+  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating IC is available
+  taskENTER_CRITICAL();
+	HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_RESET); //Select control
 
   //SCI consists of instruction byte, address byte, and 16-bit data word.
   vs1053_trans(0x02); //Write instruction
   vs1053_trans(addressbyte);
   vs1053_trans(highbyte);
   vs1053_trans(lowbyte);
-  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating command is complete
+  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating command is complete
   HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_SET); //Deselect Control
+	taskEXIT_CRITICAL();
 }
 
 //Read the 16-bit value of a VS10xx register
 uint16_t vs1053_read_reg (uint8_t addressbyte){
-  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating IC is available
+	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating IC is available
+	taskENTER_CRITICAL();
   HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_RESET); //Select control
 
+	
   //SCI consists of instruction byte, address byte, and 16-bit data word.
   vs1053_trans(0x03); //Write instruction
   vs1053_trans(addressbyte);
 
   uint8_t response1 = vs1053_txrx(0xFF); //Read the first byte
-  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating command is complete
+  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET); //Wait for DREQ to go high indicating command is complete
   uint8_t response2 = vs1053_txrx(0xFF); //Read the second byte
-  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating command is complete
+  while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET); //Wait for DREQ to go high indicating command is complete
 
 	HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_SET); //Deselect Control
+	taskEXIT_CRITICAL();
 	
   uint16_t resultvalue = response1 << 8;
   resultvalue |= response2;
@@ -65,7 +71,7 @@ uint16_t vs1053_read_reg (uint8_t addressbyte){
 
 void sine_test()
 {	
-	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating IC is available
+	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating IC is available
   HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
 	
 	uint8_t data[] = {0x53, 0xef, 0x6e, 0x44, 0x00, 0x00, 0x00, 0x00};
@@ -74,7 +80,7 @@ void sine_test()
 	for(i = 0; i<8; i++)
 		vs1053_trans(data[i]);
 	
-	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) ; //Wait for DREQ to go high indicating IC is available
+	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating IC is available
   HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET); //Select control
 }
 
@@ -100,24 +106,29 @@ void VS1053_Init(void)
 {
 	printf("VS1053 initing\n");
 	HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_RESET);
-	HAL_Delay(1);
+	HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_RESET);
+	osDelay(1);
+	slog("1");
+	HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(VS1053_xCS, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);
+	osDelay(1);
+	slog("2");
 	HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_RESET);
 	
 	vs1053_spiSpeed(0);
 	vs1053_trans(0xFF);
 	
-	HAL_Delay(10);
-	
+	osDelay(10);
+	slog("3");
 	HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_SET);
 	
 	vs1053_write_reg(SCI_VOL, 60, 60);
-	
+	slog("4");
 	int MP3Mode = vs1053_read_reg(SCI_MODE);
 	int MP3Status = vs1053_read_reg(SCI_STATUS);
 	int MP3Clock = vs1053_read_reg(SCI_CLOCKF);
-	
+
 
   printf("SCI_Mode (0x4800) = 0x%x\n", MP3Mode);
 
@@ -148,7 +159,6 @@ void VS1053_play(FIL* file, char* name)
 	
 	curfile_name = name;
 	
-	gui_draw();
 	
 	uint8_t buf[32] = {0};
 
@@ -160,15 +170,22 @@ void VS1053_play(FIL* file, char* name)
 		{
 			if(need)
 			{
+				taskENTER_CRITICAL();
 				if(f_read(file, &buf, 32, &br) != FR_OK)
+				{
+					cancel = 1;
+					need = 0;
 					break;				
+				}
+				taskEXIT_CRITICAL();
 				cur = HAL_GetTick();
 				lst = cur;
 				need = 0;
 				vv++;
 			}
-			gui_draw();
+			osDelay(1);
 		}			//Wait for DREQ to go high indicating IC is available
+		taskENTER_CRITICAL();
 		if(need)
 		{
 			if(f_read(file, &buf, 32, &br) != FR_OK)
@@ -178,18 +195,19 @@ void VS1053_play(FIL* file, char* name)
 			vv++;
 			need = 0;
 		}
-		
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
-		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET); //Select control
-		need = 1;
-		keyboard_update();
 		if(cancel)
 		{
 			printf("canc\n");
 			cancel = 0;
 			break;
 		}
+		
+		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);
+		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET); //Select control
+		taskEXIT_CRITICAL();
+		
+		need = 1;
 	}
 	curfile_name = 0;
 	printf("end\n");
