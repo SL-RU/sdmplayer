@@ -282,11 +282,11 @@ Text Label 10550 3100 0    60   ~ 0
 PB1
 Text Label 10550 3200 0    60   ~ 0
 PB2
-Text Label 6150 7450 0    60   ~ 0
+Text Label 6150 7250 0    60   ~ 0
 PB0
 Text Label 6150 7350 0    60   ~ 0
 PB1
-Text Label 6150 7250 0    60   ~ 0
+Text Label 6150 7450 0    60   ~ 0
 PB2
 Text Label 4450 3500 0    60   ~ 0
 PC5
@@ -475,12 +475,12 @@ $EndComp
 $Comp
 L GND #PWR014
 U 1 1 5715EB9A
-P 7500 6050
-F 0 "#PWR014" H 7500 5800 50  0001 C CNN
-F 1 "GND" H 7500 5900 50  0000 C CNN
-F 2 "" H 7500 6050 50  0000 C CNN
-F 3 "" H 7500 6050 50  0000 C CNN
-	1    7500 6050
+P 7500 6100
+F 0 "#PWR014" H 7500 5850 50  0001 C CNN
+F 1 "GND" H 7500 5950 50  0000 C CNN
+F 2 "" H 7500 6100 50  0000 C CNN
+F 3 "" H 7500 6100 50  0000 C CNN
+	1    7500 6100
 	1    0    0    -1  
 $EndComp
 Entry Wire Line
@@ -1604,8 +1604,6 @@ Wire Wire Line
 Wire Wire Line
 	8700 5600 8600 5600
 Connection ~ 8600 5700
-Wire Bus Line
-	3850 700  3850 4950
 Wire Wire Line
 	3950 4200 4900 4200
 Wire Wire Line
@@ -1794,12 +1792,12 @@ Wire Notes Line
 Wire Wire Line
 	2350 7050 2900 7050
 Wire Wire Line
-	2350 7700 4600 7700
+	4600 7700 2350 7700
 Wire Wire Line
 	2350 7000 2350 7200
 Connection ~ 2350 7050
 Wire Wire Line
-	2350 7500 2350 7700
+	2350 7700 2350 7500
 Wire Wire Line
 	2900 7150 2600 7150
 Wire Wire Line
@@ -1839,7 +1837,7 @@ Wire Wire Line
 	4600 7050 4600 7200
 Connection ~ 4600 7050
 Wire Wire Line
-	4600 7700 4600 7500
+	4600 7500 4600 7700
 Connection ~ 4400 7700
 Wire Notes Line
 	2250 7750 4750 7750
@@ -1991,7 +1989,7 @@ Connection ~ 2450 5250
 Connection ~ 2250 5250
 Connection ~ 2250 4950
 Wire Wire Line
-	2050 5300 2050 5250
+	2050 5250 2050 5300
 Connection ~ 2050 5250
 Wire Wire Line
 	2050 4900 2050 4950
@@ -2003,22 +2001,22 @@ Connection ~ 1400 4950
 Connection ~ 1650 5250
 Connection ~ 1400 5250
 Wire Wire Line
-	3650 4950 1400 4950
+	1400 4950 3950 4950
 Wire Wire Line
-	1400 5250 3650 5250
+	950  5250 3650 5250
 Connection ~ 800  2800
 Wire Wire Line
-	6850 5050 6850 5100
+	6850 5100 6850 5050
 Wire Wire Line
-	6850 5100 6550 5100
+	6550 5100 6850 5100
 Wire Wire Line
-	6850 5400 6150 5400
+	6150 5400 6850 5400
 Wire Wire Line
 	6500 5400 6500 5500
 Connection ~ 6500 5400
 Connection ~ 4600 7600
 Wire Wire Line
-	7500 6050 7500 6000
+	7500 6000 7500 6100
 Wire Wire Line
 	2600 6000 2700 6000
 Wire Wire Line
@@ -2046,4 +2044,100 @@ Wire Wire Line
 	2200 5450 2200 5800
 Wire Wire Line
 	2850 5550 2850 6000
+$Comp
+L CONN_01X03 P5
+U 1 1 572F829A
+P 7900 5750
+F 0 "P5" H 7900 5950 50  0000 C CNN
+F 1 "CONN_01X03" V 8000 5750 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x03" H 7900 5750 50  0001 C CNN
+F 3 "" H 7900 5750 50  0000 C CNN
+	1    7900 5750
+	0    -1   -1   0   
+$EndComp
+Entry Wire Line
+	7900 6400 8000 6500
+Entry Wire Line
+	8000 6400 8100 6500
+Wire Wire Line
+	8000 6400 8000 5950
+Wire Wire Line
+	7900 5950 7900 6400
+Wire Wire Line
+	7800 5950 7800 6250
+Wire Wire Line
+	7800 6250 7650 6250
+Wire Wire Line
+	7650 6050 7650 6350
+Wire Wire Line
+	7650 6050 7500 6050
+Connection ~ 7500 6050
+Text Label 7900 6250 1    60   ~ 0
+SWCLK
+Text Label 8000 6250 1    60   ~ 0
+SWDIO
+Text Label 10850 2700 2    60   ~ 0
+SWCLK
+Wire Wire Line
+	10500 2700 11050 2700
+Wire Wire Line
+	10500 2600 11050 2600
+Text Label 10550 2600 0    60   ~ 0
+SWDIO
+Entry Wire Line
+	11050 2600 11150 2700
+Entry Wire Line
+	11050 2700 11150 2800
+$Comp
+L C_Small C33
+U 1 1 572FDE6D
+P 7750 6350
+F 0 "C33" H 7760 6420 50  0000 L CNN
+F 1 "100pF" H 7760 6270 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 7750 6350 50  0001 C CNN
+F 3 "" H 7750 6350 50  0000 C CNN
+	1    7750 6350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7850 6350 7900 6350
+Connection ~ 7900 6350
+Connection ~ 7650 6250
+$Comp
+L CONN_01X01 P8
+U 1 1 57310A61
+P 1200 5050
+F 0 "P8" H 1200 5150 50  0000 C CNN
+F 1 "gnd" V 1300 5050 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x01" H 1200 5050 50  0001 C CNN
+F 3 "" H 1200 5050 50  0000 C CNN
+	1    1200 5050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_01X01 P7
+U 1 1 57310B20
+P 950 5050
+F 0 "P7" H 950 5150 50  0000 C CNN
+F 1 "gnd" V 1050 5050 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x01" H 950 5050 50  0001 C CNN
+F 3 "" H 950 5050 50  0000 C CNN
+	1    950  5050
+	0    -1   -1   0   
+$EndComp
+Connection ~ 1200 5250
+$Comp
+L CONN_01X01 P?
+U 1 1 57312373
+P 3950 5150
+F 0 "P?" H 3950 5250 50  0000 C CNN
+F 1 "3.3v" V 4050 5150 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x01" H 3950 5150 50  0001 C CNN
+F 3 "" H 3950 5150 50  0000 C CNN
+	1    3950 5150
+	0    1    1    0   
+$EndComp
+Wire Bus Line
+	3850 4350 3850 700 
+Connection ~ 3650 4950
 $EndSCHEMATC
