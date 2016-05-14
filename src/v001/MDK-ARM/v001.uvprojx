@@ -332,7 +332,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xE</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Include;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;..\Hardware;..\Player;..\System;..\System\GUI;..\Applications;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;..\FatFS</IncludePath>
+              <IncludePath>../Inc;      ../Drivers/STM32F1xx_HAL_Driver/Inc;      ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;      ../Drivers/CMSIS/Include;      ../Drivers/CMSIS/Device/ST/STM32F1xx/Include;      ..\Hardware;      ..\Player;      ..\System;      ..\System\GUI;      ..\Applications;      ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;      ../Middlewares/Third_Party/FreeRTOS/Source/include;      ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;      ..\FatFS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -545,6 +545,16 @@
               <FileType>1</FileType>
               <FilePath>..\System\GUI\gui.c</FilePath>
             </File>
+            <File>
+              <FileName>gui_el.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\GUI\gui_el.c</FilePath>
+            </File>
+            <File>
+              <FileName>gui_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\GUI\gui_list.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -739,6 +749,11 @@
               <FileName>vs1053.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Player\vs1053.c</FilePath>
+            </File>
+            <File>
+              <FileName>splayer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Player\splayer.c</FilePath>
             </File>
           </Files>
         </Group>

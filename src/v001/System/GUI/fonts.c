@@ -278,13 +278,6 @@ const uint8_t Font7x10[] = {
 };
 
 
-FontDef_t Font_7x10 = {
-	7,
-	10,
-	10,
-	Font7x10
-};
-
 
 const uint8_t Font4x6[] = {
 0x00, 0x00, 0x00, 0x00,
@@ -423,7 +416,12 @@ FontDef_t Font_4x6 = {
 	4,
 	Font4x6
 };
-
+FontDef_t Font_7x10 = {
+	7,
+	10,
+	10,
+	Font7x10
+};
 
 char* FONTS_GetStringSize(char* str, FONTS_SIZE_t* SizeStruct, FontDef_t* Font) {
 	/* Fill settings */

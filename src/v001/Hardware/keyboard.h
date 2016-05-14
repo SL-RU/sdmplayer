@@ -1,6 +1,10 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H 100
 
+#define KEYBOARD_DOWN 0
+#define KEYBOARD_UP 1
+
+
 /* C++ detection */
 #ifdef __cplusplus
 extern C {

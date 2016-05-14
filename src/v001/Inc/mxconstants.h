@@ -44,10 +44,6 @@
 #define _led2_GPIO_Port GPIOC
 #define _led1_Pin GPIO_PIN_5
 #define _led1_GPIO_Port GPIOC
-#define _keyR_Pin GPIO_PIN_0
-#define _keyR_GPIO_Port GPIOB
-#define _keyL_Pin GPIO_PIN_1
-#define _keyL_GPIO_Port GPIOB
 #define _keyboardon_Pin GPIO_PIN_2
 #define _keyboardon_GPIO_Port GPIOB
 #define _xRST_Pin GPIO_PIN_12

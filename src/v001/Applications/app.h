@@ -11,7 +11,7 @@ typedef struct{
 	uint8_t (*stop)(void);
 	void (*draw)(void);
 	void (*update)(void);
-	void (*input_handler)(int8_t, uint32_t);
+	uint8_t (*input_handler)(int8_t, uint32_t);
 } AppInfo;
 
 #include "app_def.h"

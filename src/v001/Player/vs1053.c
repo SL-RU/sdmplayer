@@ -162,7 +162,7 @@ void VS1053_play(FIL* file, char* name)
 	
 	uint8_t buf[32] = {0};
 
-	uint32_t lst =  HAL_GetTick(), cur, vv = 0, delt = 0;
+	uint32_t lst =  HAL_GetTick(), cur, vv = 0;
 	while(1)
 	{
 		HAL_GetTick();

@@ -43,7 +43,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "system.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -94,7 +94,8 @@ int main(void)
   MX_USB_PCD_Init();
 
   /* USER CODE BEGIN 2 */
-
+	//MX_FREERTOS_Init();
+  sys_init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

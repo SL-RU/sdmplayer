@@ -59,6 +59,10 @@ uint8_t sys_isInited(void)
 	return sys_Inited;
 }
 
+uint16_t sys_draw_THREAD_delay = 20, 
+			 sys_update_THREAD_delay = 100,
+		 sys_keyboard_THREAD_delay = 30;
+
 uint8_t sys_start_threads(void)
 {
 	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
@@ -77,13 +81,16 @@ void sys_draw(void const * argument)
 {
   for(;;)
 	{
+		gui_setOrigin(0, 7);
 		gui_setFont(&DEFAULT_FONT);
 		app_draw();
+		gui_setOrigin(0, 7);
 		gui_setFont(&DEFAULT_FONT);
 		sys_draw_gui();
+		gui_setOrigin(0, 7);
 		gui_setFont(&DEFAULT_FONT);
 		gui_draw();
-		osDelay(10);
+		osDelay(sys_draw_THREAD_delay);
 	}
 }
 uint32_t co = 0;
@@ -93,13 +100,15 @@ void sys_update(void const * argument)
 	for(;;)
 	{
 		app_update();
-		osDelay(100);
+		osDelay(sys_update_THREAD_delay);
 	}
 }
 
 void sys_input_handler(int8_t key, uint32_t state)
 {
-		app_input_handler(key, state);
+	if(sys_input_handler_gui(key, state) == SYS_HANDLED)
+		return;
+	app_input_handler(key, state);
 }
 
 
@@ -108,7 +117,7 @@ void sys_thread_keyboard(void const * argument)
 	for(;;)
 	{
 		keyboard_update();
-		osDelay(30);
+		osDelay(sys_keyboard_THREAD_delay);
 	}
 }
 void sys_thread_player(void const * argument)

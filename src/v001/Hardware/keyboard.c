@@ -2,7 +2,9 @@
 
 uint16_t keyboard_adcLevels[] = {540, 1080, 1630, 2210, 2960, 4020};
 
-uint32_t keyboard_ADC_values[40], keyboard_pressTime = 0;
+uint16_t keyboard_ADC_values[40] = {0};
+uint32_t keyboard_pressTime = 0;
+
 int8_t keyboard_lastKey = -1,
 	keyboard_lastLeftLvl = -1,
 	keyboard_lastRightLvl = -1,
@@ -26,7 +28,7 @@ void keyboard_setHandler(void (*KeyPressHandler)(int8_t, uint32_t))
 uint8_t keyboard_init()
 {
 	HAL_ADC_Start(&keyboard_hadc);
-	HAL_ADC_Start_DMA(&keyboard_hadc, keyboard_ADC_values , 2);
+	HAL_ADC_Start_DMA(&keyboard_hadc, (uint32_t*)&keyboard_ADC_values, 2);
 	HAL_GPIO_WritePin(keyboard_on, GPIO_PIN_SET);
 	return SYS_OK;
 }
@@ -35,16 +37,15 @@ uint8_t keyboard_init()
 void keyboard_update()
 {
 	HAL_GPIO_WritePin(keyboard_on, GPIO_PIN_SET);
-	HAL_ADC_Start_DMA(&keyboard_hadc, keyboard_ADC_values , 2);
+	
+	HAL_ADC_Start_DMA(&keyboard_hadc, (uint32_t*)&keyboard_ADC_values, 2);
+	
 	int8_t cul = keyboard_adc_to_lvl(keyboard_ADC_values[0]),
-		cur = keyboard_adc_to_lvl(keyboard_ADC_values[1]), 
-		kll = keyboard_lastLeftLvl, klr = keyboard_lastRightLvl;
+		cur = keyboard_adc_to_lvl(keyboard_ADC_values[1]);
 	
 	keyboard_lastLeftLvl = cul;
 	keyboard_lastRightLvl = cur;
-	
-	HAL_GPIO_WritePin(keyboard_on, GPIO_PIN_RESET);
-	
+	//HAL_GPIO_WritePin(keyboard_on, GPIO_PIN_RESET);
 	if((cul >= 0 || cur >= 0))
 	{
 		int8_t cu = keyboard_lvl_to_key(cul, cur);
@@ -54,7 +55,7 @@ void keyboard_update()
 			{
 				if(HAL_GetTick() - keyboard_pressTime >= 10)
 				{
-					keyboard_handle(cu, 0); //call handler for click button event
+					keyboard_handle(cu, KEYBOARD_DOWN); //call handler for click button event
 					keyboard_wasClick = 1;
 				}
 			}
@@ -67,7 +68,7 @@ void keyboard_update()
 		{
 			if(keyboard_lastKey >= 0) //if there is last key
 			{
-				keyboard_handle(keyboard_lastKey, 1); //call handler for release button event
+				keyboard_handle(keyboard_lastKey, KEYBOARD_UP); //call handler for release button event
 			}
 			keyboard_lastKey = -1;
 			keyboard_pressTime = 0;
@@ -83,7 +84,7 @@ void keyboard_update()
 	{
 		if(keyboard_lastKey >= 0) //if there is last key
 			{
-				keyboard_handle(keyboard_lastKey, 1); //call handler for release button event
+				keyboard_handle(keyboard_lastKey, KEYBOARD_UP); //call handler for release button event
 			}
 		keyboard_pressTime = 0;
 		keyboard_lastKey = -1;

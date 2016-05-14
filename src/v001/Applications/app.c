@@ -35,6 +35,6 @@ void app_draw(void)
 uint8_t app_input_handler(int8_t key, uint32_t arg)
 {
 	if(app_curr != 0)
-		app_curr->input_handler(key, arg);
-
+		return app_curr->input_handler(key, arg);
+	return SYS_NOT_HANDLED;
 }

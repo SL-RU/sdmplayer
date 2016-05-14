@@ -96,7 +96,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	//MX_FREERTOS_Init();
   sys_init();
-	/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();

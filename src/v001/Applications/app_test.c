@@ -29,21 +29,26 @@ uint8_t app_test_stop(void)
 {
 	return SYS_OK;
 }
-char LKey = 11;
-uint32_t LArg = 13, cnt = 0;
+
+uint8_t app_test_focus = 0;
+uint8_t app_test_focusMAX = 6;
+uint32_t app_test_num = 4583;
 
 void app_test_draw(void)
 {
-	gui_rect_fill(0,7, LArg/70, 64, 1, 1); 
+	uint8_t i = 0;
+	for(i = 0; i<=6; i++)
+	{
+		gui_DigitInput_draw(app_test_num, i, app_test_focus == 6 - i, 80 - 10 * i, 5, 0, 0);
+	}
 	
-	char bu[30] = {0};
+	gui_lablef(10, 20, 100, 13, 0, 1, "n: %d", app_test_num);
+	
+	return;
+	
 	RTC_TimeTypeDef time;
 	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-	sprintf(bu, "%d:%d:%d    %d", time.Hours, time.Minutes, time.Seconds, cnt);
-	gui_lable(bu, 0, 7, 128, 20, 1, 1);
-	memset(bu, 0, sizeof(bu));
-	sprintf(bu, "key: %c\narg: %d", keyboard_key_to_char(LKey), LArg);
-	gui_lable(bu, 0, 30, 128, 33, 1, 1);
+
 }
 uint8_t ineeeee = 0;
 void app_test_update(void)
@@ -61,20 +66,37 @@ void player(void const * argument)
 	VS1053_play(&fl, "Shockwave.mp3");
 }
 uint8_t p = 0;
-void app_test_input_handler(int8_t key, uint32_t arg)
+uint8_t app_test_input_handler(int8_t key, uint32_t arg)
 {
-	LKey = key;
-	LArg = arg;
-	if(arg == 0)
-		cnt ++;
-	if(key == 5 && arg == 1 && !p)
+	if(arg == KEYBOARD_UP)
 	{
-		
-		uint8_t res = f_open(&fl, "Shockwave.mp3", FA_OPEN_EXISTING | FA_READ);
-		slog("file open: %d", res);
-		osThreadDef(pl_THREAD, player, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-		osThreadCreate(osThread(pl_THREAD), NULL);
-		p = 1;
+		if(key == 'a')
+		{
+			if(app_test_focus == 0)
+				app_test_focus = app_test_focusMAX;
+			else
+				app_test_focus --;
+			return SYS_HANDLED;
+		}
+		if(key == 'c')
+		{
+			if(app_test_focus >= app_test_focusMAX)
+				app_test_focus = 0;
+			else
+				app_test_focus ++;
+			return SYS_HANDLED;
+		}
+		if(app_test_focus <= 6)
+		{
+			if (gui_DigitInput_input((uint32_t*)&app_test_num, 6 - app_test_focus, key, arg))
+			{
+				app_test_focus ++;
+				if(app_test_focus > app_test_focusMAX)
+					app_test_focus = 0;
+			}
+		}
+		return SYS_HANDLED;
 	}
+	return SYS_NOT_HANDLED;
 }
 

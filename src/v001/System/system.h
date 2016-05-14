@@ -3,6 +3,9 @@
 #define SYS_ERROR     0x02
 #define SYS_BUSY      0x03
 
+#define SYS_HANDLED       0x10
+#define SYS_NOT_HANDLED   0x11
+
 #ifndef SYSTEM_H
 #define SYSTEM_H 100
 
@@ -23,6 +26,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+
+#include "vs1053.h"
 
 #include "sys_gui.h"
 
@@ -47,4 +52,3 @@ void sys_thread_hw(void const * argument);
 
 
 #endif
-

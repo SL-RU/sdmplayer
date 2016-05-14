@@ -10,7 +10,7 @@ extern C {
 #include "i2c.h"
 #include <stdio.h>
 
-#define at24c_I2C          hi2c2
+#define at24c_I2C          hi2c1
 #define at24c_I2C_useDMARx 1
 #define at24c_I2C_address  0x50 << 1
 
