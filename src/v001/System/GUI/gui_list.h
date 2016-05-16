@@ -1,5 +1,8 @@
 #ifndef GUI_EL_H
 #define GUI_EL_H 10
+
+#define SYS_GUI_HEADER_HIGHT 7 
+
 #include "gui.h"
 
 typedef struct
@@ -7,6 +10,12 @@ typedef struct
 	uint16_t id; /*!< Item's id */
 	char* text;  /*!< Item's text*/
 	uint32_t arg; /*!< custom value */
+	/*id - index of item, 
+	arg - argument of item
+	eventType:
+		GUI_FOCUS_GET
+		GUI_FOCUS_LEAVE
+		GUI_CLICK*/
 	void (*ClickHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user click OK button and this item is selected */
 	void (*FocusHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user focused on this item */
 	void (*DeFocusHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user defocused this item */
@@ -20,7 +29,12 @@ typedef struct
 	uint16_t ItemsCount; /*!< Item's array*/
 	uint8_t x, y, w, h;
 	uint16_t selectedItem;
-	
+	/*id - index of item, 
+	arg - argument of item
+	eventTypes:
+		GUI_FOCUS_GET
+		GUI_FOCUS_LEAVE
+		GUI_CLICK*/
 	void (*ClickHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user click OK */
 	void (*FocusHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user focuses on item */
 	void (*DeFocusHandler)(uint16_t id, uint32_t arg, uint8_t eventType); /*!< Function, which will be called when user defocused on item */
@@ -42,14 +56,14 @@ extern GUI_ListData *gui_CurList;
  * @param  onDeFocus: Function, which will be called when user defocused on item
  * @retval GUI_ListData
  */
-GUI_ListData* gui_create_list(char* header, uint16_t count, GUI_ListItemData** items, uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
+GUI_ListData* gui_list_create(char* header, uint16_t count, GUI_ListItemData** items, uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
 	void (*onClick)(uint16_t, uint32_t, uint8_t eventType), void (*onFocus)(uint16_t, uint32_t, uint8_t eventType), void (*onDeFocus)(uint16_t, uint32_t, uint8_t eventType));
 /**
  * @brief  free memory from GUI_ListData
  * @param  list: GUI_ListData
  * @retval None
  */
-void gui_remove_list(GUI_ListData* list);
+void gui_list_remove(GUI_ListData* list);
 /**
  * @brief  Create list's item data structure for using in listElement
  * @note   DO NOT FORGOT call @ref gui_remove_listItem(ld);
@@ -60,7 +74,7 @@ void gui_remove_list(GUI_ListData* list);
  * @param  onDeFocus: Function, which will be called when user defocused on item
  * @retval GUI_ListItemData
  */
-GUI_ListItemData* gui_create_listItem(char* text, uint32_t arg,
+GUI_ListItemData* gui_listItem_create(char* text, uint32_t arg,
 	void (*onClick)(uint16_t, uint32_t, uint8_t eventType), void (*onFocus)(uint16_t, uint32_t, uint8_t eventType), void (*onDeFocus)(uint16_t, uint32_t, uint8_t eventType));
 /**
  * @brief  free memory from GUI_ListItemData
@@ -68,19 +82,19 @@ GUI_ListItemData* gui_create_listItem(char* text, uint32_t arg,
  * @param  ld: GUI_ListData
  * @retval None
  */
-void gui_remove_listItem(GUI_ListItemData *ld);
+void gui_listItem_remove(GUI_ListItemData *ld);
 /**
  * @brief  draw current GUI_List
  * @note   DO NOT USE IT BY YOURSELF! DO NOT FORGET gui_set_curList(data) first!
  * @param  ld: GUI_ListItemData
  * @retval None
  */
-uint8_t gui_draw_list(GUI_ListData* list);
+uint8_t gui_list_draw(GUI_ListData* list);
 /**
  * @brief  draw current GUI_List
  * @note   DO NOT USE IT BY YOURSELF! DO NOT FORGET gui_set_curList(data) first!
  * @param  ld: GUI_ListItemData
  * @retval None
  */
-uint8_t gui_input_list(GUI_ListData* list, int8_t key);
+uint8_t gui_list_input(GUI_ListData* list, int8_t key);
 #endif

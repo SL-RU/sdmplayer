@@ -26,7 +26,7 @@ uint8_t sys_init(void)
 		SYS_ERROR_HANDLER();
 	}
 	keyboard_setHandler(&sys_input_handler);
-	gui_showMessage("SDMPlayer initing...\nSSD1306 - OK\nKeyboard - OK\n...");
+	gui_showMessage("SDMPlayer initing\nSSD1306 - OK\nKeyboard - OK\n...");
 	gui_draw();
 	
 	uint8_t res = 0;
@@ -44,15 +44,14 @@ uint8_t sys_init(void)
 	gui_draw();
 	HAL_Delay(500);
 	
-	
 	sys_start_threads();
 	sys_Inited = SYS_OK;
 	slog("System inited");
-	
 	app_set(APP_TEST_ID);
 	
 	return 1;
 }
+
 
 uint8_t sys_isInited(void)
 {
@@ -81,13 +80,25 @@ void sys_draw(void const * argument)
 {
   for(;;)
 	{
-		gui_setOrigin(0, 7);
+		//pre sys
+		gui_setOrigin(0, SYS_GUI_HEADER_HIGHT);
 		gui_setFont(&DEFAULT_FONT);
-		app_draw();
-		gui_setOrigin(0, 7);
+		sys_gui_draw_pre();
+		
+		//app
+		if(sys_gui_menu_mode != 2)
+		{
+			gui_setOrigin(0, SYS_GUI_HEADER_HIGHT);
+			gui_setFont(&DEFAULT_FONT);
+			app_draw();
+		}
+		//post sys
+		gui_setOrigin(0, SYS_GUI_HEADER_HIGHT);
 		gui_setFont(&DEFAULT_FONT);
-		sys_draw_gui();
-		gui_setOrigin(0, 7);
+		sys_gui_draw_post();
+		
+		//update screen
+		gui_setOrigin(0, SYS_GUI_HEADER_HIGHT);
 		gui_setFont(&DEFAULT_FONT);
 		gui_draw();
 		osDelay(sys_draw_THREAD_delay);
@@ -106,9 +117,12 @@ void sys_update(void const * argument)
 
 void sys_input_handler(int8_t key, uint32_t state)
 {
-	if(sys_input_handler_gui(key, state) == SYS_HANDLED)
+	if(sys_gui_input_handler_pre(key, state) == SYS_HANDLED)
 		return;
-	app_input_handler(key, state);
+	if(app_input_handler(key, state) == SYS_HANDLED)
+		return;
+	if(sys_gui_input_handler_post(key, state) == SYS_HANDLED)
+		return;
 }
 
 

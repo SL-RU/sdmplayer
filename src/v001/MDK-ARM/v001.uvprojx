@@ -505,6 +505,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\sys_gui.c</FilePath>
             </File>
+            <File>
+              <FileName>sys_gui_menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\sys_gui_menu.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
