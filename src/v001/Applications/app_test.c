@@ -44,6 +44,8 @@ uint8_t app_test_start(void)
 }
 uint8_t app_test_stop(void)
 {
+	gui_list_remove(app_test_list);
+	slog("test stoped");
 	return SYS_OK;
 }
 

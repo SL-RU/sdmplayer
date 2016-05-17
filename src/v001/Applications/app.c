@@ -7,7 +7,10 @@ void app_set(uint8_t id)
 {
 	gui_closeMessage();
 	if(app_curr != 0)
+	{
+		app_curr->stop();
 		app_curr = 0;
+	}
 	
 	AppInfo *app = app_test();
 	if(app == 0)

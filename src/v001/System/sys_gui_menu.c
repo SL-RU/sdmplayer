@@ -23,6 +23,8 @@ void sys_gui_menu_close(void)
 {
 	sys_gui_menu_mode = 0;
 }
+uint32_t someval = 10;
+uint32_t sys_gui_menu_vol_slider_data = 0;
 void sys_gui_menu_draw(void)
 {
 	if(sys_gui_menu_mode == 1)
@@ -45,9 +47,10 @@ void sys_gui_menu_draw(void)
 	gui_line(30, 0, 30, 64-SYS_GUI_HEADER_HIGHT, 1);
 	switch(sys_gui_menu_focus)
 	{
-		case 0: break;
+		case 0:
+			gui_Slider_draw(someval, 50, 1, 32, 0, 128 - 32);
+			break;
 		case 1: 
-			gui_lable("123456789012345678901234567890", 31, 0, 97, h, 0, 1);
 			break;
 	}
 }
@@ -56,6 +59,15 @@ void sys_gui_menu_update(void)
 }
 uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 {
+		switch(sys_gui_menu_focus)
+		{
+			case 0: 
+				if(gui_Slider_input((uint32_t*)&someval, 50, &sys_gui_menu_vol_slider_data, 1500, key, arg) == SYS_HANDLED)
+					return SYS_HANDLED;
+				break;
+			case 1: 
+				break;
+		}
 	if(arg == KEYBOARD_UP)
 	{
 		if(key == 'a')

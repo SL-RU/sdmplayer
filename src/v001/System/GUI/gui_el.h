@@ -52,12 +52,31 @@ void gui_removeTicker(GUI_TickerData *dt);
  */
 void gui_DigitInput_draw(uint32_t num, uint8_t order, uint8_t focus, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 /**
- * @brief  draw digital input field
+ * @brief  input handler for digital input field
  * @param  num: number with didgit
  * @param  order: position of digit in num
  * @retval SYS_HANDLED
  */
 uint8_t gui_DigitInput_input(uint32_t* num, uint8_t order, uint8_t key, uint32_t arg);
 
+
+
+//Slider
+/**
+ * @brief  draw slider element. Height = 10;
+ * @param  val: value
+ * @param  maxval: max value
+ * @retval None
+ */
+void gui_Slider_draw(uint32_t val, uint8_t maxval, uint8_t focus, uint8_t x, uint8_t y, uint8_t w);
+/**
+ * @brief  input handler for slider
+ * @brief  draw digital input field
+ * @brief  data: just variable for technical needs.
+ * @brief  fulltime: if you don't know enter 0.
+ * @param  val: value
+ * @retval SYS_HANDLED
+ */
+uint8_t gui_Slider_input(uint32_t* val, uint8_t maxval, uint32_t *data, uint16_t fulltime, uint8_t key, uint32_t arg);
 
 #endif

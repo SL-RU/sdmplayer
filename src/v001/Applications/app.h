@@ -12,6 +12,9 @@ typedef struct{
 	void (*draw)(void);
 	void (*update)(void);
 	uint8_t (*input_handler)(int8_t, uint32_t);
+	
+	uint8_t isPlayer;
+	
 } AppInfo;
 
 #include "app_def.h"
