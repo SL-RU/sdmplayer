@@ -48,8 +48,8 @@
 #define _keyboardon_GPIO_Port GPIOB
 #define _xRST_Pin GPIO_PIN_12
 #define _xRST_GPIO_Port GPIOB
-#define _dreq_Pin GPIO_PIN_6
-#define _dreq_GPIO_Port GPIOC
+#define DREQ_Pin GPIO_PIN_6
+#define DREQ_GPIO_Port GPIOC
 #define _xCS_Pin GPIO_PIN_7
 #define _xCS_GPIO_Port GPIOC
 #define _xDCS_Pin GPIO_PIN_8

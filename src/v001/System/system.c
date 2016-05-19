@@ -67,8 +67,8 @@ uint8_t sys_start_threads(void)
 	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate(osThread(sys_draw_THREAD), NULL);
 
-	osThreadDef(sys_update_THREAD, sys_update, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate(osThread(sys_update_THREAD), NULL);
+	//osThreadDef(sys_update_THREAD, sys_update, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+  //osThreadCreate(osThread(sys_update_THREAD), NULL);
 	
 	osThreadDef(sys_keyboard_THREAD, sys_thread_keyboard, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   osThreadCreate(osThread(sys_keyboard_THREAD), NULL);

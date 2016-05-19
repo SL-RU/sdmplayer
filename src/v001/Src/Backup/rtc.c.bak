@@ -54,7 +54,7 @@ void MX_RTC_Init(void)
   hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
   HAL_RTC_Init(&hrtc);
 
-  sTime.Hours = 0x1;
+  sTime.Hours = 0x0;
   sTime.Minutes = 0x0;
   sTime.Seconds = 0x0;
 

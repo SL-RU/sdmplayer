@@ -4,13 +4,13 @@
 #include "ff.h"
 #include "keyboard.h"
 #include "gui.h"
+#include "vs1053_defs.h"
 
-#define VS1053_SPI hspi2
-#define VS1053_xCS GPIOC, GPIO_PIN_7
-#define VS1053_xDCS GPIOA, GPIO_PIN_8
-#define VS1053_xRST GPIOB, GPIO_PIN_12
-#define VS1053_DREQ GPIOC, GPIO_PIN_6
 
+#define VS1053_rstD() HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_RESET);
+#define VS1053_rstU() HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_SET)
+
+void set_vol(uint8_t vol);
 void VS1053_Init(void);
 void VS1053_play(FIL* file, char* name);
 

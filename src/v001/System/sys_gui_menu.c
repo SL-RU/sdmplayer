@@ -23,7 +23,7 @@ void sys_gui_menu_close(void)
 {
 	sys_gui_menu_mode = 0;
 }
-uint32_t someval = 10;
+uint32_t someval = 60;
 uint32_t sys_gui_menu_vol_slider_data = 0;
 void sys_gui_menu_draw(void)
 {
@@ -48,7 +48,7 @@ void sys_gui_menu_draw(void)
 	switch(sys_gui_menu_focus)
 	{
 		case 0:
-			gui_Slider_draw(someval, 50, 1, 32, 0, 128 - 32);
+			gui_Slider_draw(someval, 128, 1, 32, 0, 128 - 32);
 			break;
 		case 1: 
 			break;
@@ -62,8 +62,11 @@ uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 		switch(sys_gui_menu_focus)
 		{
 			case 0: 
-				if(gui_Slider_input((uint32_t*)&someval, 50, &sys_gui_menu_vol_slider_data, 1500, key, arg) == SYS_HANDLED)
+				if(gui_Slider_input((uint32_t*)&someval, 128, &sys_gui_menu_vol_slider_data, 1500, key, arg) == SYS_HANDLED)
+				{
+					set_vol(someval);
 					return SYS_HANDLED;
+				}
 				break;
 			case 1: 
 				break;

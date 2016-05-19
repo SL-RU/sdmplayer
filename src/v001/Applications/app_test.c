@@ -22,9 +22,12 @@ AppInfo* app_test(void)
 
 GUI_ListData* app_test_list;
 GUI_ListItemData **app_test_listD;
-	
+
+uint8_t ineeeee = 0;
+
 uint8_t app_test_start(void)
 {
+	
 	app_test_listD = pvPortMalloc(sizeof(GUI_ListItemData)*10);
 	app_test_listD[0] = gui_listItem_create("one", 0, 0, 0, 0);
 	app_test_listD[1] = gui_listItem_create("two", 0, 0, 0, 0);
@@ -55,6 +58,11 @@ uint32_t app_test_num = 4583;
 
 void app_test_draw(void)
 {
+			if(!ineeeee)
+	{
+		ineeeee = 1;
+		VS1053_Init();
+	}
 	if(app_test_focus != 0)
 	{
 		uint8_t i = 0;
@@ -74,26 +82,36 @@ void app_test_draw(void)
 	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
 
 }
-uint8_t ineeeee = 0;
 void app_test_update(void)
 {
-	if(!ineeeee)
-	{
-		ineeeee = 1;
-		VS1053_Init();
-	}
 }
 FIL fl;
 
-void player(void const * argument)
+void pppp(void * argument)
 {
+	slog("p");
 	VS1053_play(&fl, "Shockwave.mp3");
 }
+TaskHandle_t xHandle = NULL;
 uint8_t p = 0;
 uint8_t app_test_input_handler(int8_t key, uint32_t arg)
 {
 	if(arg == KEYBOARD_UP)
 	{
+		if(app_test_focus == 0 && key == 5)
+		{
+			uint8_t res = f_open(&fl, "Shockwave.mp3", FA_OPEN_EXISTING | FA_READ);
+			slog("file open: %d", res);
+			xTaskCreate(
+                    pppp,       /* Function that implements the task. */
+										"player",          /* Text name for the task. */
+                    2000,      /* Stack size in words, not bytes. */
+                    ( void * ) 1,    /* Parameter passed into the task. */
+                    osPriorityHigh,/* Priority at which the task is created. */
+                    &xHandle );      /* Used to pass out the created task's handle. */
+			
+			return SYS_HANDLED;
+		}
 		if(key == 'a')
 		{
 			if(app_test_focus == 0)
