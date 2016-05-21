@@ -1,5 +1,5 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef SPLAYER_H
+#define SPLAYER_H 1
 
 #include "system.h"
 #include "vs1053.h"

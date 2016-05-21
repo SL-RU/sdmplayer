@@ -6,20 +6,20 @@
 
 typedef struct{
 	uint8_t id;
-	
+	char *name;
 	uint8_t (*start)(void);
 	uint8_t (*stop)(void);
 	void (*draw)(void);
 	void (*update)(void);
 	uint8_t (*input_handler)(int8_t, uint32_t);
-	
-	uint8_t isPlayer;
-	
+		
 } AppInfo;
 
 #include "app_def.h"
 
 
+AppInfo* app_getByID(uint8_t id);
+uint8_t app_getCur(void);
 void app_set(uint8_t id);
 
 void app_update(void); //thread updating current app

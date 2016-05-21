@@ -3,8 +3,25 @@
 AppInfo *app_curr;
 
 
+AppInfo* app_getByID(uint8_t id)
+{
+	switch(id)
+	{
+		case APP_TEST_ID: return app_test();
+		case FM_ID      : return fm();
+		case SPLAYER_ID : return splayer();
+		default: return 0;
+	}
+}
+uint8_t app_getCur(void)
+{
+	if(app_curr != 0)
+		return app_curr->id;
+	return 0;
+}
 void app_set(uint8_t id)
 {
+	
 	gui_closeMessage();
 	if(app_curr != 0)
 	{
@@ -12,13 +29,18 @@ void app_set(uint8_t id)
 		app_curr = 0;
 	}
 	
-	AppInfo *app = app_test();
+	AppInfo *app = app_getByID(id);
 	if(app == 0)
 	{
+		elog("App get by id error!", id);
 		return;
 	}
+	slog("Starting app id:%d", id);
 	if(app->start() != SYS_OK)
+	{
+		elog("App id:%d name:%s start error!", id, app->name);
 		return;
+	}
 	
 	app_curr = app;
 }

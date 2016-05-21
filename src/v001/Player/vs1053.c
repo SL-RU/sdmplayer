@@ -1,5 +1,7 @@
 #include "vs1053.h"
 
+VS1053_parametric parametric;
+
 
 static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 {
@@ -70,7 +72,42 @@ uint16_t vs1053_read_reg (uint8_t addressbyte){
   resultvalue |= response2;
   return resultvalue;
 }
-
+uint16_t vs1053_write_reg_16 (uint16_t addressbyte, uint16_t val)
+{
+	vs1053_write_reg(addressbyte, val >> 8, val);
+}
+uint16_t vs1053_read_wram_16 (uint16_t addressbyte)
+{
+	vs1053_write_reg_16(SCI_WRAMADDR, addressbyte);
+	uint16_t h = vs1053_read_reg(SCI_WRAM);
+	return h;
+}
+void vs1053_write_wram_16 (uint16_t addressbyte, uint16_t val)
+{
+	vs1053_write_reg_16(SCI_WRAMADDR, addressbyte);
+	vs1053_write_reg_16(SCI_WRAM, val);
+}
+uint32_t vs1053_read_wram_32 (uint8_t addressbyte)
+{	
+	//datasheet 10.11 Extra Parameters
+	uint16_t h = vs1053_read_wram_16(addressbyte),
+						l = vs1053_read_wram_16(addressbyte + 1);
+	
+	uint16_t h1 = vs1053_read_wram_16(addressbyte),
+						l1 = vs1053_read_wram_16(addressbyte);
+	
+	if((h == h1 && l == l1) //doesn't changed - valid
+	 ||	(h != h1 && l != l1) //both words changed - valid
+		)
+		return l + (h << 16);
+	else //not valid - again
+		return vs1053_read_wram_32(addressbyte);
+	
+}
+void vs1053_write_wram_32 (uint8_t addressbyte, uint32_t val){
+	vs1053_write_wram_16(addressbyte, val >> 16);	
+	vs1053_write_wram_16(addressbyte + 1, val);	
+}
 void sine_test()
 {	
 	while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET) osDelay(1); //Wait for DREQ to go high indicating IC is available
@@ -89,6 +126,14 @@ void sine_test()
 void set_vol(uint8_t vol)
 {
 	VSvolume = 10 + (100 - vol)*130/100;
+}
+void vs1053_read_parametric(void)
+{
+	parametric.version = vs1053_read_wram_16(PAR_VERSION);
+	parametric.config1 = vs1053_read_wram_16(PAR_CONFIG1);
+	parametric.playSpeed = vs1053_read_wram_16(PAR_PLAY_SPEED);
+	
+	slog("par %d %d %d", parametric.version, parametric.config1, parametric.playSpeed);
 }
 void VS1053_Init(void)
 {
@@ -128,6 +173,8 @@ void VS1053_Init(void)
   printf("SCI_ClockF = 0x%x\n", MP3Clock);
 	vs1053_write_reg(SCI_CLOCKF, 0x60, 0x00); //set clock x3
 	
+	vs1053_read_parametric();
+	
 	//printf("sine\n");
 	//vs1053_write_reg(SCI_MODE, 0x08, 0x20);
 	//printf("SCI_Mode (0x4800) = 0x%x\n", vs1053_read_reg(SCI_MODE));
@@ -136,9 +183,17 @@ void VS1053_Init(void)
 	//printf("done\n");
 
 }
+
+void vs1053_update_parametric(void)
+{
+	parametric.byteRate = vs1053_read_wram_16(PAR_VERSION);
+	parametric.endFillByte = vs1053_read_wram_16(PAR_CONFIG1);
+	parametric.playSpeed = vs1053_read_wram_16(PAR_PLAY_SPEED);
+}
+
 char* curfile_name;
 uint8_t cancel = 0;
-void VS1053_play(FIL* file, char* name)
+void VS1053_play_file(FIL* file, char* name)
 {
 	printf("play\n");
 	cancel = 0;
@@ -151,6 +206,9 @@ void VS1053_play(FIL* file, char* name)
 	uint8_t buf[32] = {0};
 
 	uint32_t lst =  HAL_GetTick(), cur, vv = 0;
+	
+	vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
+	
 	while(1)
 	{
 		HAL_GetTick();
@@ -170,6 +228,7 @@ void VS1053_play(FIL* file, char* name)
 				lst = cur;
 				need = 0;
 				vv++;
+				vs1053_update_parametric();
 			}
 			if(VSvolume != VScurvolume)
 			{
@@ -179,7 +238,8 @@ void VS1053_play(FIL* file, char* name)
 				slog("vols %d", VScurvolume);
 				vs1053_spiSpeed(1);
 			}
-			osDelay(1);
+			else
+				osDelay(1);
 		}			//Wait for DREQ to go high indicating IC is available
 		taskENTER_CRITICAL();
 		if(need)
@@ -197,10 +257,9 @@ void VS1053_play(FIL* file, char* name)
 			cancel = 0;
 			break;
 		}
-		
 		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
-		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET); //Select control
+		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);      //trasmit data
+		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
 		taskEXIT_CRITICAL();
 		need = 1;
 	}

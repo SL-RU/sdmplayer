@@ -3,6 +3,7 @@
 
 AppInfo appInfo_test = {
 	APP_TEST_ID,
+	"app_test",
 	&app_test_start,
 	&app_test_stop,
 	&app_test_draw,
@@ -12,12 +13,7 @@ AppInfo appInfo_test = {
 
 AppInfo* app_test(void)
 {
-	slog("test app");
-	
-	
-	
 	return &appInfo_test;
-	
 }
 
 GUI_ListData* app_test_list;
@@ -29,16 +25,16 @@ uint8_t app_test_start(void)
 {
 	
 	app_test_listD = pvPortMalloc(sizeof(GUI_ListItemData)*10);
-	app_test_listD[0] = gui_listItem_create("one", 0, 0, 0, 0);
-	app_test_listD[1] = gui_listItem_create("two", 0, 0, 0, 0);
+	app_test_listD[0] = gui_listItem_create("one", 0,   0, 0, 0);
+	app_test_listD[1] = gui_listItem_create("two", 0,   0, 0, 0);
 	app_test_listD[2] = gui_listItem_create("three", 0, 0, 0, 0);
-	app_test_listD[3] = gui_listItem_create("four", 0, 0, 0, 0);
-	app_test_listD[4] = gui_listItem_create("five", 0, 0, 0, 0);
-	app_test_listD[5] = gui_listItem_create("six", 0, 0, 0, 0);
+	app_test_listD[3] = gui_listItem_create("four", 0,  0, 0, 0);
+	app_test_listD[4] = gui_listItem_create("five", 0,  0, 0, 0);
+	app_test_listD[5] = gui_listItem_create("six", 0,   0, 0, 0);
 	app_test_listD[6] = gui_listItem_create("seven", 0, 0, 0, 0);
 	app_test_listD[7] = gui_listItem_create("eight", 0, 0, 0, 0);
-	app_test_listD[8] = gui_listItem_create("nine", 0, 0, 0, 0);
-	app_test_listD[9] = gui_listItem_create("ten", 0, 0, 0, 0);
+	app_test_listD[8] = gui_listItem_create("nine", 0,  0, 0, 0);
+	app_test_listD[9] = gui_listItem_create("ten", 0,   0, 0, 0);
 	
 	app_test_list = gui_list_create("lel", 10, app_test_listD, 0, 0, 40, 63-7, 0, 0, 0);
 	
@@ -48,6 +44,7 @@ uint8_t app_test_start(void)
 uint8_t app_test_stop(void)
 {
 	gui_list_remove(app_test_list);
+	vPortFree(app_test_listD);
 	slog("test stoped");
 	return SYS_OK;
 }
@@ -90,7 +87,7 @@ FIL fl;
 void pppp(void * argument)
 {
 	slog("p");
-	VS1053_play(&fl, "Shockwave.mp3");
+	VS1053_play_file(&fl, "Shockwave.mp3");
 }
 TaskHandle_t xHandle = NULL;
 uint8_t p = 0;

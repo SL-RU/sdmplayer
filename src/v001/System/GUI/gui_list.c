@@ -29,7 +29,13 @@ GUI_ListData* gui_list_create(char* header, uint16_t count, GUI_ListItemData** i
 }
 void gui_list_remove(GUI_ListData* list)
 {
-	vPortFree(list->header);
+	
+	if(list == 0)
+		return;
+	if(list->header != 0)
+	{
+		//vPortFree(list->header);
+	}
 	uint16_t i;
 	for(i = 0; i < list->ItemsCount; i++)
 	{
@@ -50,33 +56,44 @@ GUI_ListItemData* gui_listItem_create(char* text, uint32_t arg,
 }
 void gui_listItem_remove(GUI_ListItemData *ld)
 {
-	vPortFree(ld->text);
-	vPortFree(ld);
+	if(ld != 0)
+	{
+		if(ld->text != 0)
+		{
+			//vPortFree(ld->text);
+		}
+		vPortFree(ld);
+	}
 }
 
 uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 {
 	gui_rect_fill(gui_CurList->x, gui_CurList->y, gui_CurList->w, gui_CurList->h, 0, 1);
-	
 	uint8_t ry = gui_CurList->y + 2;
 	if(gui_CurList->header != 0)
 	{
 		gui_text(gui_CurList->header, gui_CurList->x + 1, gui_CurList->y, 1);
 		ry += GUI_DefFont->FontHeight;
 	}
-	
 	uint8_t maxC = ((gui_CurList->h - 3) / GUI_DefFont->FontHeight) - (gui_CurList->header != 0);
 	
 	uint16_t i;
 	if(maxC >= gui_CurList->ItemsCount)
 	{
+		
 		for(i = 0; i < gui_CurList->ItemsCount; i++)
 		{
+			if(gui_CurList->items[i] != 0)
+			{
+			if(gui_CurList->items[i]->text != 0)
+			{
 			if(i != gui_CurList->selectedItem)
 				gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 			else
 				gui_lable(gui_CurList->items[i]->text, gui_CurList->x +1 , ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
-		}
+			}
+			}
+	}
 	}
 	else
 	{
@@ -84,30 +101,48 @@ uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 		{
 			for(i = gui_CurList->ItemsCount - maxC; i < gui_CurList->ItemsCount; i++)
 			{
+				if(gui_CurList->items[i] != 0)
+				{
+				if(gui_CurList->items[i]->text != 0)
+				{
 				if(i != gui_CurList->selectedItem)
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->ItemsCount + maxC)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
+				}	
+				}
 			}
 		}
 		else if(gui_CurList->selectedItem < maxC / 2)
 		{
 			for(i = 0; i < maxC; i++)
 			{
+				if(gui_CurList->items[i] != 0)
+				{
+				if(gui_CurList->items[i]->text != 0)
+				{
 				if(i != gui_CurList->selectedItem)
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
+				}
+				}
 			}
 		}
 		else
 		{
 			for(i = gui_CurList->selectedItem - maxC/2; i < gui_CurList->selectedItem - maxC/2 + maxC; i++)
 			{
+				if(gui_CurList->items[i] != 0)
+				{
+				if(gui_CurList->items[i]->text != 0)
+				{
 				if(i != gui_CurList->selectedItem)
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 0, 0);
 				else
 					gui_lable(gui_CurList->items[i]->text, gui_CurList->x + 1, ry + (i - gui_CurList->selectedItem + maxC/2)*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
+				}	
+				}
 			}
 		}
 	}
@@ -117,7 +152,6 @@ uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 	uint8_t yy = ((gui_CurList->h) * gui_CurList->selectedItem) / gui_CurList->ItemsCount;
 	gui_line(gui_CurList->x, ry - 2,  gui_CurList->x + gui_CurList->w, ry - 2, 1);
 	gui_line(gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy,  gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy + sli_h, 1);
-	
 	return SYS_OK;
 }
 
