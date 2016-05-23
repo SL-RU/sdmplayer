@@ -11,6 +11,10 @@
 #include "fat_sd_spi.h"
 
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+
 hwif SD_ff_hw;
 
 
@@ -39,9 +43,13 @@ DSTATUS disk_initialize (
 	BYTE pdrv				/* Physical drive nmuber to identify the drive */
 )
 {
+	taskENTER_CRITICAL();
 	if (hwif_init(&SD_ff_hw) == 0)
+	{
+		taskEXIT_CRITICAL();
 		return 0;
-
+	}
+	taskEXIT_CRITICAL();
 	return STA_NOINIT;
 }
 
@@ -60,10 +68,16 @@ DRESULT disk_read (
 {
 	int i;
 
+	taskENTER_CRITICAL();
 	for (i=0; i<count; i++)
+	{
 		if (sd_read(&SD_ff_hw, sector+i, buff+512*i) != 0)
+		{
+			taskEXIT_CRITICAL();
 			return RES_ERROR;
-
+		}
+	}
+	taskEXIT_CRITICAL();
 	return RES_OK;
 }
 
@@ -82,11 +96,16 @@ DRESULT disk_write (
 )
 {
 	int i;
-
+	taskENTER_CRITICAL();
 	for (i=0; i<count; i++)
+	{
 		if (sd_write(&SD_ff_hw, sector+i, buff+512*i) != 0)
+		{
+			taskEXIT_CRITICAL();
 			return RES_ERROR;
-
+		}
+	}
+	taskEXIT_CRITICAL();
 	return RES_OK;
 }
 #endif

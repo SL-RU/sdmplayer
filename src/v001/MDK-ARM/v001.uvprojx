@@ -670,6 +670,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/freertos.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f1xx_hal_timebase_TIM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\stm32f1xx_hal_timebase_TIM.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

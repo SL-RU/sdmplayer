@@ -42,12 +42,14 @@ uint8_t sys_init(void)
 	sprintf(msg, "SDMPlayer initing\nSSD1306 - OK\nKeyboard - OK\nFatFS - OK\nSD size: %iMb", sz);
 	gui_showMessage(msg);
 	gui_draw();
-	HAL_Delay(500);
+	osDelay(300);
+	
+	VS1053_Init();
 	
 	sys_start_threads();
 	sys_Inited = SYS_OK;
 	slog("System inited");
-	app_set(APP_TEST_ID);
+	app_set(FM_ID);
 	
 	return 1;
 }
@@ -58,9 +60,9 @@ uint8_t sys_isInited(void)
 	return sys_Inited;
 }
 
-uint16_t sys_draw_THREAD_delay = 20, 
+uint16_t sys_draw_THREAD_delay = 10, 
 			 sys_update_THREAD_delay = 100,
-		 sys_keyboard_THREAD_delay = 30;
+		 sys_keyboard_THREAD_delay = 5;
 
 uint8_t sys_start_threads(void)
 {
@@ -78,6 +80,7 @@ uint8_t sys_start_threads(void)
 
 void sys_draw(void const * argument)
 {
+	while(sys_isInited() != SYS_OK);
   for(;;)
 	{
 		//pre sys
@@ -108,6 +111,7 @@ uint32_t co = 0;
 char bu[30];
 void sys_update(void const * argument)
 {
+	while(sys_isInited() != SYS_OK);
 	for(;;)
 	{
 		app_update();
@@ -128,6 +132,7 @@ void sys_input_handler(int8_t key, uint32_t state)
 
 void sys_thread_keyboard(void const * argument)
 {
+	while(sys_isInited() != SYS_OK);
 	for(;;)
 	{
 		keyboard_update();
@@ -140,3 +145,4 @@ void sys_thread_player(void const * argument)
 void sys_thread_hw(void const * argument)
 {
 }
+

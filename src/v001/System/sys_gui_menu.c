@@ -9,12 +9,6 @@ uint8_t sys_gui_menu_focus = 0;
 uint8_t sys_gui_menu_cur_page = SYS_GUI_MENU_MAIN;
 
 
-void sys_gui_menu_debug_click(uint16_t id, uint32_t arg, uint8_t eventType)
-{
-	sys_gui_debug_start();
-	sys_gui_menu_mode = 0;
-	sys_gui_menu_cur_page = SYS_GUI_MENU_MAIN;
-}
 char* sys_gui_menu_lables[] = {
 	"vol",
 	"apps",
@@ -118,7 +112,11 @@ uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 	if(sys_gui_menu_cur_page == SYS_GUI_MENU_APPSEL) //If current page is appselect
 	{
 		if(arg == KEYBOARD_UP)
+		{
+			if(key == 'a')
+				sys_gui_menu_appsel_close();
 			sys_gui_menu_appsel_input(key);
+		}
 		return SYS_HANDLED;
 	}
 	//norm
@@ -140,6 +138,13 @@ uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 						sys_gui_menu_appsel_open(key);
 					}
 					return SYS_HANDLED;
+				}
+				break;
+			case 4: //debug
+				if(key == 0 && (arg == KEYBOARD_UP))
+				{
+					sys_gui_debug_start();
+					sys_gui_menu_close();
 				}
 				break;
 		}

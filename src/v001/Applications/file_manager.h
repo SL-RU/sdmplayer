@@ -14,5 +14,7 @@ void fm_draw(void);
 void fm_update(void);
 uint8_t fm_input_handler(int8_t key, uint32_t arg);
 
+uint32_t count_files(char* path);
+uint32_t count_folders(char* path);
 
 #endif

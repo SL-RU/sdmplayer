@@ -48,7 +48,7 @@ void sys_thread_keyboard(void const * argument);
 void sys_thread_player(void const * argument);
 void sys_thread_hw(void const * argument);
 
-
+BYTE GetCPU_IDLE(void);
 
 
 #endif

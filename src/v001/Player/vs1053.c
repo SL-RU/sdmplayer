@@ -11,7 +11,7 @@ static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 	if (speed == 0)
 		prescaler = SPI_BAUDRATEPRESCALER_128;
 	else if (speed == 1)
-		prescaler = SPI_BAUDRATEPRESCALER_8;
+		prescaler = SPI_BAUDRATEPRESCALER_4;
 	taskENTER_CRITICAL();
 	VS1053_SPI.Init.BaudRatePrescaler = prescaler;
 	HAL_SPI_Init(&VS1053_SPI);
@@ -208,7 +208,7 @@ void VS1053_play_file(FIL* file, char* name)
 	uint32_t lst =  HAL_GetTick(), cur, vv = 0;
 	
 	vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
-	
+	printf("sstrt\n");
 	while(1)
 	{
 		HAL_GetTick();
@@ -216,14 +216,12 @@ void VS1053_play_file(FIL* file, char* name)
 		{
 			if(need)
 			{
-				taskENTER_CRITICAL();
 				if(f_read(file, &buf, 32, &br) != FR_OK)
 				{
 					cancel = 1;
 					need = 0;
 					break;				
 				}
-				taskEXIT_CRITICAL();
 				cur = HAL_GetTick();
 				lst = cur;
 				need = 0;
@@ -238,9 +236,9 @@ void VS1053_play_file(FIL* file, char* name)
 				slog("vols %d", VScurvolume);
 				vs1053_spiSpeed(1);
 			}
-			else
-				osDelay(1);
 		}			//Wait for DREQ to go high indicating IC is available
+
+		
 		taskENTER_CRITICAL();
 		if(need)
 		{
@@ -251,16 +249,18 @@ void VS1053_play_file(FIL* file, char* name)
 			vv++;
 			need = 0;
 		}
+		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);      //trasmit data
+		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
+		taskEXIT_CRITICAL();
+		
 		if(cancel)
 		{
 			printf("canc\n");
 			cancel = 0;
 			break;
 		}
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
-		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);      //trasmit data
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
-		taskEXIT_CRITICAL();
+		
 		need = 1;
 	}
 	curfile_name = 0;

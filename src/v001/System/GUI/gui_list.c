@@ -69,16 +69,16 @@ void gui_listItem_remove(GUI_ListItemData *ld)
 uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 {
 	gui_rect_fill(gui_CurList->x, gui_CurList->y, gui_CurList->w, gui_CurList->h, 0, 1);
-	uint8_t ry = gui_CurList->y + 2;
+	uint8_t ry = gui_CurList->y ;
 	if(gui_CurList->header != 0)
 	{
 		gui_text(gui_CurList->header, gui_CurList->x + 1, gui_CurList->y, 1);
 		ry += GUI_DefFont->FontHeight;
 	}
-	uint8_t maxC = ((gui_CurList->h - 3) / GUI_DefFont->FontHeight) - (gui_CurList->header != 0);
+	uint8_t maxC = ((gui_CurList->h) / GUI_DefFont->FontHeight) - (gui_CurList->header != 0); //max visible items
 	
 	uint16_t i;
-	if(maxC >= gui_CurList->ItemsCount)
+	if(maxC >= gui_CurList->ItemsCount) //count is less then maxc
 	{
 		
 		for(i = 0; i < gui_CurList->ItemsCount; i++)
@@ -93,11 +93,11 @@ uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 				gui_lable(gui_CurList->items[i]->text, gui_CurList->x +1 , ry + i*GUI_DefFont->FontHeight, gui_CurList->w - 3, GUI_DefFont->FontHeight, 1, 0);
 			}
 			}
-	}
+		}
 	}
 	else
 	{
-		if(gui_CurList->ItemsCount - 1 - gui_CurList->selectedItem < maxC / 2)
+		if(gui_CurList->ItemsCount - 1 - gui_CurList->selectedItem < maxC / 2) //first half
 		{
 			for(i = gui_CurList->ItemsCount - maxC; i < gui_CurList->ItemsCount; i++)
 			{
@@ -113,7 +113,7 @@ uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 				}
 			}
 		}
-		else if(gui_CurList->selectedItem < maxC / 2)
+		else if(gui_CurList->selectedItem < maxC / 2) //sec
 		{
 			for(i = 0; i < maxC; i++)
 			{
@@ -146,12 +146,14 @@ uint8_t gui_list_draw(GUI_ListData* gui_CurList)
 			}
 		}
 	}
+	//slider
 	uint8_t sli_h = gui_CurList->h / gui_CurList->ItemsCount;
-	if(sli_h < 10)
-		sli_h = 10;
-	uint8_t yy = ((gui_CurList->h) * gui_CurList->selectedItem) / gui_CurList->ItemsCount;
-	gui_line(gui_CurList->x, ry - 2,  gui_CurList->x + gui_CurList->w, ry - 2, 1);
-	gui_line(gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy,  gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy + sli_h, 1);
+	if(sli_h < 6)
+		sli_h = 6;
+	uint32_t yy = ((gui_CurList->h - 4) * gui_CurList->selectedItem) / gui_CurList->ItemsCount;
+	//gui_line(gui_CurList->x, ry - 2,  gui_CurList->x + gui_CurList->w, ry - 2, 1);
+	gui_line(gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy + 1,  gui_CurList->x + gui_CurList->w - 1, gui_CurList->y + yy + sli_h + 1, 1);
+	gui_rect(gui_CurList->x, gui_CurList->y, gui_CurList->w, gui_CurList->h, 1);
 	return SYS_OK;
 }
 
