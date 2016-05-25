@@ -2,19 +2,14 @@
 #define VS1053_H
 #include "spi.h"
 #include "gpio.h"
-#include <stdio.h>
-#include "ff.h"
-#include "keyboard.h"
-#include "gui.h"
 #include "vs1053_defs.h"
 
 
 #define VS1053_rstD() HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_RESET);
 #define VS1053_rstU() HAL_GPIO_WritePin(VS1053_xRST, GPIO_PIN_SET)
 
-#define VS1053_END_FILL_BYTES       2052
+#define VS1053_END_FILL_BYTES    2050
 #define VS1053_MAX_TRANSFER_SIZE 32
-
 
 #define PARAMETRIC_VERSION 0x0003
 typedef struct {
@@ -54,13 +49,35 @@ uint16_t gain; /* 0x1e2a proposed gain offset in 0.5dB steps, default = -12 */
 
 extern VS1053_parametric parametric;
 
+#define PLAYER_STOP 0
+#define PLAYER_PLAY 1
+#define PLAYER_PAUSE 2
+typedef struct {
+	uint8_t appID; //Application for player
+	char* shortName; //3char name
+	uint8_t (*start)(void); //player started
+	uint8_t (*stop)(void);  //player stoped
+	void (*playComplete)(void); //current song completed
+	void (*drawMenu)(void);        //draw info in menu
+	uint8_t (*input_handlerMenu)(int8_t, uint32_t); //handle input in menu
+} PlayerInfo;
+
+#include <stdio.h>
+#include "ff.h"
+#include "keyboard.h"
+#include "gui.h"
+
 void set_vol(uint8_t vol);
 void VS1053_Init(void);
-void VS1053_play_file(FIL* file, char* name);
+void VS1053_play_file(FIL* file);
 
 void VS1053_draw(void);
 uint8_t VS1053_input(uint8_t key);
 
+void VS1053_thread(void  * argument);
+
+void VS1053_set_player(PlayerInfo* player);
+PlayerInfo* VS1053_get_player(void);
 
 void vs1053_update_parametric(void);
 

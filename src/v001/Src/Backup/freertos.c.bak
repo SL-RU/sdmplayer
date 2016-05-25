@@ -72,7 +72,7 @@ uint8_t GetCPU_IDLE(void) {
 void vApplicationIdleHook( void ) {     //это и есть поток с минимальным приоритетом
         static portTickType LastTick; 
         static uint32_t count;             //наш трудяга счетчик
-        static uint32_t max_count ;                //максимальное значение счетчика, вычисляется при калибровке и соответствует 100% CPU idle
+        static uint32_t max_count = 1000;                //максимальное значение счетчика, вычисляется при калибровке и соответствует 100% CPU idle
 
         count++;                                                  //приращение счетчика
 

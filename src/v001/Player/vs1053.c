@@ -2,6 +2,12 @@
 
 VS1053_parametric parametric;
 
+FIL* VS1053_curFile;
+FIL* _VS1053_curFile;
+uint8_t VS1053_filechanged;
+char* VS1053_curFilPath = 0;
+uint8_t VS1053_curState = PLAYER_STOP;
+uint8_t _VS1053_curState = PLAYER_STOP;
 
 static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 {
@@ -72,7 +78,7 @@ uint16_t vs1053_read_reg (uint8_t addressbyte){
   resultvalue |= response2;
   return resultvalue;
 }
-uint16_t vs1053_write_reg_16 (uint16_t addressbyte, uint16_t val)
+void vs1053_write_reg_16 (uint16_t addressbyte, uint16_t val)
 {
 	vs1053_write_reg(addressbyte, val >> 8, val);
 }
@@ -191,94 +197,120 @@ void vs1053_update_parametric(void)
 	parametric.playSpeed = vs1053_read_wram_16(PAR_PLAY_SPEED);
 }
 
-char* curfile_name;
-uint8_t cancel = 0;
-void VS1053_play_file(FIL* file, char* name)
+void VS1053_play_file(FIL* file)
 {
-	printf("play\n");
-	cancel = 0;
-	UINT br;
-	uint8_t need = 1;
-	
-	curfile_name = name;
-	
-	
-	uint8_t buf[32] = {0};
+	VS1053_curFile = file;
+	VS1053_curState = PLAYER_PLAY;
+	VS1053_filechanged = 1;
+}
 
-	uint32_t lst =  HAL_GetTick(), cur, vv = 0;
-	
+void VS1053_thread(void  * argument)
+{
+	slog("VS1053_thread");
+	uint8_t need = 1, last = PLAYER_STOP;
+	uint8_t buf[32] = {0};
+	UINT br = 0;
+
+	slog("VS1053_thread started");
 	vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
-	printf("sstrt\n");
 	while(1)
 	{
-		HAL_GetTick();
-		while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET)
+		while(_VS1053_curState != PLAYER_STOP && VS1053_filechanged != 1 && (VS1053_curFile == _VS1053_curFile || VS1053_curFile == 0) && _VS1053_curFile != 0)
 		{
-			if(need)
+			last = _VS1053_curState;
+			while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET)
 			{
-				if(f_read(file, &buf, 32, &br) != FR_OK)
+				if(need)
 				{
-					cancel = 1;
+					if(f_read(_VS1053_curFile, &buf, 32, &br) != FR_OK)
+					{
+						need = 0;
+						_VS1053_curState = PLAYER_STOP;
+					}
 					need = 0;
-					break;				
+					
+					vs1053_update_parametric(); 
 				}
-				cur = HAL_GetTick();
-				lst = cur;
-				need = 0;
-				vv++;
-				vs1053_update_parametric();
-			}
-			if(VSvolume != VScurvolume)
+				if(VSvolume != VScurvolume)
+				{
+					vs1053_spiSpeed(0);
+					vs1053_write_reg(SCI_VOL, VSvolume, VSvolume);
+					VScurvolume = VSvolume;
+					vs1053_spiSpeed(1);
+				}
+			}			//Wait for DREQ to go high indicating IC is available
+			
+			if(need) //if there weren't freetime
 			{
-				vs1053_spiSpeed(0);
-				vs1053_write_reg(SCI_VOL, VSvolume, VSvolume);
-				VScurvolume = VSvolume;
-				slog("vols %d", VScurvolume);
-				vs1053_spiSpeed(1);
+				taskENTER_CRITICAL();
+				if(f_read(_VS1053_curFile, &buf, 32, &br) != FR_OK)
+				{
+					_VS1053_curState = PLAYER_STOP;
+				}
+				need = 0;
+				taskEXIT_CRITICAL();
 			}
-		}			//Wait for DREQ to go high indicating IC is available
-
-		
-		taskENTER_CRITICAL();
-		if(need)
-		{
-			if(f_read(file, &buf, 32, &br) != FR_OK)
-				break;
-			cur = HAL_GetTick();
-			lst = cur;
-			vv++;
-			need = 0;
-		}
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
-		HAL_SPI_Transmit(&VS1053_SPI, buf, 32, 1);      //trasmit data
-		HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
-		taskEXIT_CRITICAL();
-		
-		if(cancel)
-		{
-			printf("canc\n");
-			cancel = 0;
-			break;
+			if(_VS1053_curState != PLAYER_STOP)
+			{
+				taskENTER_CRITICAL();
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+				HAL_SPI_Transmit(&VS1053_SPI, buf, br, 1);      //trasmit data
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
+				taskEXIT_CRITICAL();
+			
+				need = 1;
+			}
 		}
 		
-		need = 1;
+		if(0 && //test!!!!
+			(last != PLAYER_STOP || (VS1053_curFile != _VS1053_curFile && VS1053_curFile != 0) || VS1053_filechanged == 1))
+		{
+			slog("STOP playing");
+			last = PLAYER_STOP;
+			_VS1053_curState = PLAYER_STOP;
+			
+			memset(&buf, parametric.endFillByte, sizeof(buf));
+			br = VS1053_END_FILL_BYTES;
+			uint32_t i = 0;
+			HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+			for(i = 0; i <= VS1053_END_FILL_BYTES; i += 32)
+			{
+				taskENTER_CRITICAL();
+				HAL_SPI_Transmit(&VS1053_SPI, buf, br, 1);      //trasmit data
+				taskEXIT_CRITICAL();
+			}
+			HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //DESelect control
+			vs1053_write_reg_16(SCI_MODE, vs1053_read_reg(SCI_MODE) | SM_CANCEL);
+			while(vs1053_read_reg(SCI_MODE) & SM_CANCEL)
+			{
+				taskENTER_CRITICAL();
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+				HAL_SPI_Transmit(&VS1053_SPI, buf, 2, 1);      //trasmit data
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //DESelect control
+				taskEXIT_CRITICAL();
+				osDelay(1);
+			}
+			slog("Stopped");
+		}
+		osDelay(50);
+		
+		if(VS1053_curState == PLAYER_PLAY && VS1053_curFile != 0)
+		{
+			slog("Start play");
+			_VS1053_curState = PLAYER_PLAY;
+			vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
+			_VS1053_curFile = VS1053_curFile;
+			VS1053_filechanged  = 0;
+		}
+		else
+		{
+			VS1053_curState = PLAYER_STOP;
+		}
 	}
-	curfile_name = 0;
-	printf("end\n");
-}
-void VS1053_draw(void)
-{
-	if(curfile_name != 0)
-		gui_lable(curfile_name, 0, 20, 128, 20, 1, 1);
-}
-uint8_t VS1053_input(uint8_t key)
-{
-	cancel = 1;
-	gui_closeMessage();
-	return 1;
 }
 
-uint32_t lst = 0;
+
+//uint32_t lst = 0;
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //{
 //	if( lst == 0)

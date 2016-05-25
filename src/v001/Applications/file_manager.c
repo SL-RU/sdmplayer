@@ -92,33 +92,17 @@ void fm_list_focused(uint16_t id, uint32_t arg, uint8_t ev)
 	strcat(pa, fm_files[arg]);
 	f_open(fm_selectedFIL, pa, FA_OPEN_EXISTING);
 }
+
 FIL flll;
-void pppp(void * argument)
-{
-	slog("p");
-	VS1053_play_file(&flll, "");
-}
-TaskHandle_t xHandle = NULL;
-uint8_t p = 0;
 void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)
 {
-	if(p==0)
-	{
-		p = 1;
-			char pa[256] = {0};
-	strcat(pa, "/leee/");
-	strcat(pa, fm_files[fm_list->selectedItem]);
+
+	  char pa[256] = {0};
+	  strcat(pa, "/leee/");
+	  strcat(pa, fm_files[fm_list->selectedItem]);
 		uint8_t res = f_open(&flll, pa, FA_OPEN_EXISTING | FA_READ);
-			slog("file open: %d......%d", res,
-			xTaskCreate(
-                    pppp,       /* Function that implements the task. */
-										"player",          /* Text name for the task. */
-                    1000,      /* Stack size in words, not bytes. */
-                    ( void * ) 1,    /* Parameter passed into the task. */
-                    osPriorityHigh,/* Priority at which the task is created. */
-                    &xHandle ) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY );     /* Used to pass out the created task's handle. */
-			
-	}
+		slog("file: %s  ...# %d", pa, res);
+		VS1053_play_file(&flll);
 }
 
 

@@ -46,10 +46,10 @@ uint8_t sys_init(void)
 	
 	VS1053_Init();
 	
-	sys_start_threads();
 	sys_Inited = SYS_OK;
-	slog("System inited");
+	sys_start_threads();
 	app_set(FM_ID);
+	slog("System inited");
 	
 	return 1;
 }
@@ -66,21 +66,32 @@ uint16_t sys_draw_THREAD_delay = 10,
 
 uint8_t sys_start_threads(void)
 {
-	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, 1000);
   osThreadCreate(osThread(sys_draw_THREAD), NULL);
 
 	//osThreadDef(sys_update_THREAD, sys_update, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   //osThreadCreate(osThread(sys_update_THREAD), NULL);
 	
-	osThreadDef(sys_keyboard_THREAD, sys_thread_keyboard, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(sys_keyboard_THREAD, sys_thread_keyboard, osPriorityNormal, 0, 1000);
   osThreadCreate(osThread(sys_keyboard_THREAD), NULL);
+	
+	TaskHandle_t xHandle = NULL;
+	slog("vs thread: %d",
+			xTaskCreate(
+                    VS1053_thread,       /* Function that implements the task. */
+										"player",          /* Text name for the task. */
+                    1000,      /* Stack size in words, not bytes. */
+                    ( void * ) 1,    /* Parameter passed into the task. */
+                    osPriorityHigh,/* Priority at which the task is created. */
+                    &xHandle ) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY );     /* Used to pass out the created task's handle. */
 	
 	return SYS_OK;
 }
 
 void sys_draw(void const * argument)
 {
-	while(sys_isInited() != SYS_OK);
+	while(sys_Inited != SYS_OK) osDelay(1);
+	slog("draw thread");
   for(;;)
 	{
 		//pre sys
@@ -132,7 +143,8 @@ void sys_input_handler(int8_t key, uint32_t state)
 
 void sys_thread_keyboard(void const * argument)
 {
-	while(sys_isInited() != SYS_OK);
+	while(sys_Inited != SYS_OK) osDelay(1);
+	slog("Keyboard thread");
 	for(;;)
 	{
 		keyboard_update();
