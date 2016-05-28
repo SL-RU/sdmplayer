@@ -149,8 +149,8 @@ uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 				{
 					if(VS1053_get_player() != 0)
 					{
+						sys_gui_menu_close();
 						app_set(VS1053_get_player()->appID);
-						sys_gui_menu_appsel_close();
 					}
 					return SYS_HANDLED;
 				}

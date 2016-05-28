@@ -21,11 +21,17 @@ uint8_t app_getCur(void)
 }
 void app_set(uint8_t id)
 {
-	
 	gui_closeMessage();
 	if(app_curr != 0)
 	{
-		app_curr->stop();
+		if(app_curr->stop() == SYS_OK)
+			slog("stop app id:%d - OK", app_curr->id);
+		else
+		{
+			slog("stop app id:%d - ERR", app_curr->id);
+			app_curr = 0;
+			return;
+		}
 		app_curr = 0;
 	}
 	
@@ -38,10 +44,10 @@ void app_set(uint8_t id)
 	slog("Starting app id:%d", id);
 	if(app->start() != SYS_OK)
 	{
-		elog("App id:%d name:%s start error!", id, app->name);
+		elog("App id:%d name:%s start - ERR!", id, app->name);
 		return;
 	}
-	
+	slog("Starting app id:%d - OK", id);
 	app_curr = app;
 }
 

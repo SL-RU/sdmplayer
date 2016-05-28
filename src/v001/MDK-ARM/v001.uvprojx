@@ -736,11 +736,6 @@
               <FilePath>..\FatFS\ccsbcs.c</FilePath>
             </File>
             <File>
-              <FileName>diskio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FatFS\diskio.c</FilePath>
-            </File>
-            <File>
               <FileName>fat_sd_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FatFS\fat_sd_spi.c</FilePath>
@@ -749,6 +744,11 @@
               <FileName>ff.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FatFS\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FatFS\diskio.c</FilePath>
             </File>
             <File>
               <FileName>syscall.c</FileName>

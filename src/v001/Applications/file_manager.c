@@ -79,7 +79,7 @@ uint32_t count_folders(char* path)
 	return count;
 }
 
-void fm_list_focused(uint16_t id, uint32_t arg, uint8_t ev)
+void fm_list_focused(uint16_t id, uint32_t arg, uint8_t ev) //FOCUS
 {
 	if(fm_selectedFIL != 0)
 	{
@@ -90,8 +90,8 @@ void fm_list_focused(uint16_t id, uint32_t arg, uint8_t ev)
 	if(id >= fm_foldersCount + 1)
 	{
 		fm_selectedFIL = pvPortMalloc(sizeof(FIL));
-		char* pa = pvPortMalloc(sizeof(char)*(strlen(fm_files[arg] + strlen(fm_curPath) + 2)));
-		memset(pa, 0, sizeof(char)*(strlen(fm_files[arg] + strlen(fm_curPath) + 2)));
+		char* pa = pvPortMalloc(sizeof(char)*(strlen(fm_files[arg]) + strlen(fm_curPath) + 2));
+		memset(pa, 0, sizeof(char)*(strlen(fm_files[arg]) + strlen(fm_curPath) + 2));
 		strcpy(pa, fm_curPath);
 		if(fm_curPath[strlen(fm_curPath) - 1] != '/')
 			strcat(pa, "/");
@@ -102,9 +102,10 @@ void fm_list_focused(uint16_t id, uint32_t arg, uint8_t ev)
 }
 
 FIL flll;
-void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)
+void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)  //CLICK
 {
-	if(id >= 1 + fm_foldersCount)
+	slog("ll");
+	if(id >= 1 + fm_foldersCount)  //FILES
 	{
 	  char pa[256] = {0};
 	  strcat(pa, fm_curPath);
@@ -113,13 +114,27 @@ void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)
 	  strcat(pa, fm_files[arg]);
 		splayer_playFile(pa);
 	}
-	else if(id == 0)
+	else if(id == 0)               //UP
 	{
-		if(strcmp(fm_curPath, "") || strcmp(fm_curPath, "/"))
+		slog("up %s", fm_curPath);
+		if(fm_curPath != 0)
 		{
-			uint32_t i = strlen(fm_curPath - 1);
+			slog("up");
+			if(strlen(fm_curPath) == 0)
+			{
+				return;
+			}
+			if(fm_curPath[1] == 0)
+			{
+				slog("root");
+				fm_open_folder("/");
+				return;
+			}
+			slog("%s %d", fm_curPath, strlen(fm_curPath));
+			uint32_t i = strlen(fm_curPath) - 1;
 			if(fm_curPath[i] == '/')
 				i--;
+			slog("%d", i);
 			while(fm_curPath[i] != '/' && i > 0)
 				i --;
 			if(i == 0)
@@ -127,15 +142,15 @@ void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)
 				fm_open_folder("/");
 				return;
 			}
-			char* pa = pvPortMalloc(sizeof(char)*(i+1));
-			memset(pa, 0, i+1);
+			char* pa = pvPortMalloc(sizeof(char)*(i+2));
+			memset(pa, 0, sizeof(char)*(i+2));
 			strncpy(pa, fm_curPath, i);
-			slog("back: %s", pa);
+			slog("up: %s", pa);
 			fm_open_folder(pa);
 			vPortFree(pa);
 		}
 	}
-	else if(id < 1 + fm_foldersCount)
+	else if(id < 1 + fm_foldersCount) //FOLDERS
 	{
 		char* pa = pvPortMalloc(sizeof(char)*(strlen(fm_folders[arg]) + strlen(fm_curPath) + 3));
 		memset(pa, 0, (strlen(fm_folders[arg]) + strlen(fm_curPath) + 3));
@@ -150,8 +165,10 @@ void fm_list_click(uint16_t id, uint32_t arg, uint8_t ev)
 }
 
 
-void fm_open_folder(char* path)
+void fm_open_folder(char* path)  //OPEN FOLDER
 {
+	if(fm_proceed)
+		return;
 	fm_proceed = 1;
 	_fm_open_folder_free();
 	uint32_t i = 0;
@@ -216,6 +233,7 @@ void fm_open_folder(char* path)
 	if(fm_curPath != 0)
 		vPortFree(fm_curPath);
 	fm_curPath = pvPortMalloc(sizeof(char)*(strlen(path) + 1));
+	memset(fm_curPath, 0, sizeof(char)*(strlen(path) + 1));
 	strcpy(fm_curPath, path);
 	
 	//create list
@@ -229,7 +247,7 @@ void fm_open_folder(char* path)
 		pa[0] = '[';
 		strcpy(pa + 1, fm_folders[i]);
 		strcat(pa, "/]");
-		slog("%s --- %s", fm_folders[i], pa);
+		//slog("%s --- %s", fm_folders[i], pa);
 		fm_listData[i + 1] = gui_listItem_create(pa, i, 0, 0, 0);
 		fm_visFolders[i] = pa;
 	}
@@ -242,54 +260,65 @@ void fm_open_folder(char* path)
 	fm_list = gui_list_create(0, cnt, fm_listData, 0, 0, 127, 57 - SYS_GUI_HEADER_HIGHT, &fm_list_click, &fm_list_focused, 0);
 	fm_proceed = 0;
 }
-void _fm_open_folder_free(void)
+void _fm_open_folder_free(void) //FREE LIST STAFF
 {
 	if(fm_selectedFIL != 0)
 	{
+		//slog("1-1");
 		f_close(fm_selectedFIL);
 		vPortFree(fm_selectedFIL);
 		fm_selectedFIL = 0;
 	}
+	//slog("2");
 	uint32_t i = 0;
 	if(fm_folders != 0)
 	{
+		//slog("2-1");
 		for(i =0; i<fm_foldersCount; i++)
 		{
 			vPortFree(fm_folders[i]);
 			vPortFree(fm_visFolders[i]);
 		}
+		//slog("2-2");
 		vPortFree(fm_folders);
 		vPortFree(fm_visFolders);
 		fm_folders = 0;
 	}
+	//slog("3");
 	if(fm_files != 0)
 	{
+		//slog("3-1");
 		for(i =0; i < fm_filesCount; i++)
 		{
 			vPortFree(fm_files[i]);
 		}
+		//slog("3-3");
 		vPortFree(fm_files);
 		fm_files = 0;
 	}
+	//slog("4");
 	if(fm_list != 0)
 	{
+		//slog("4-4");
 		gui_list_remove(fm_list);
 		vPortFree(fm_listData);
+		fm_list = 0;
 	}
+	//slog("5");
 }
 
-uint8_t fm_start(void)
+uint8_t fm_start(void) //start
 {
-	fm_open_folder("/leee");
+	fm_open_folder("/");
 	return SYS_OK;
 }
-uint8_t fm_stop(void)
+uint8_t fm_stop(void) //stop
 {
 	_fm_open_folder_free();
 	return SYS_OK;
 }
 
-void fm_draw(void)
+void fm_draw(void) //draw
 {
 	if(fm_proceed)
 	{
@@ -322,12 +351,14 @@ void fm_draw(void)
 		{
 			gui_lable(fm_curPath, 26, 57 - SYS_GUI_HEADER_HIGHT, 105, 6, 0, 0);
 		}
+		gui_lablef(100, 58 - SYS_GUI_HEADER_HIGHT, 30, 6, 0, 0, "% 3d/%d", fm_list->selectedItem + 1, fm_list->ItemsCount);
+			gui_line(99, 57 - SYS_GUI_HEADER_HIGHT, 99, 64 - SYS_GUI_HEADER_HIGHT, 1);
 	}
 }
-void fm_update(void)
+void fm_update(void) //update
 {
 }
-uint8_t fm_input_handler(int8_t key, uint32_t arg)
+uint8_t fm_input_handler(int8_t key, uint32_t arg) //input
 {
 	if(fm_proceed)
 	{
