@@ -82,7 +82,7 @@ void gui_lable(char* txt, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t bg
 		gui_rect(x, y, w, h, !bg);
 	uint8_t max_x = x + border + gui_xOrigin;
 	SSD1306_GotoXY(x + border + gui_xOrigin, y + border  + gui_yOrigin + (h - GUI_DefFont->FontHeight)/2 + 1);
-	while(*txt && max_x + GUI_DefFont->FontWidth < SSD1306_WIDTH && max_x + GUI_DefFont->FontWidth < x + w)
+	while(*txt && max_x + GUI_DefFont->FontWidth < SSD1306_WIDTH && max_x + GUI_DefFont->FontWidth < x + w + gui_xOrigin)
 	{
 		max_x += GUI_DefFont->FontWidth;
 		SSD1306_Putc(*txt, GUI_DefFont, !bg);

@@ -2,12 +2,42 @@
 
 VS1053_parametric parametric;
 
-FIL* VS1053_curFile;
-FIL* _VS1053_curFile;
-uint8_t VS1053_filechanged;
+FIL* VS1053_curFile = 0;
+uint8_t VS1053_filechanged = 0;
 char* VS1053_curFilPath = 0;
 uint8_t VS1053_curState = PLAYER_STOP;
-uint8_t _VS1053_curState = PLAYER_STOP;
+
+
+PlayerInfo* VS1053_curPlayer = 0;
+
+
+uint8_t VS1053_set_player(PlayerInfo* player)
+{
+	if(VS1053_curPlayer == player)
+		return SYS_OK;
+	if(VS1053_curPlayer != 0)
+	{
+		VS1053_curPlayer->stop();
+	}
+	VS1053_curPlayer = 0;
+	if(player->start() == SYS_OK)
+	{
+		VS1053_curPlayer = player;
+		return SYS_OK;
+	}
+	return SYS_ERROR;
+}
+PlayerInfo* VS1053_get_player(void)
+{
+	return VS1053_curPlayer;
+}
+
+uint8_t VS1053_getState(void);
+
+
+
+
+
 
 static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 {
@@ -17,7 +47,7 @@ static void vs1053_spiSpeed(uint8_t speed) // 0 - 400kHz; 1 - 25MHz
 	if (speed == 0)
 		prescaler = SPI_BAUDRATEPRESCALER_128;
 	else if (speed == 1)
-		prescaler = SPI_BAUDRATEPRESCALER_4;
+		prescaler = SPI_BAUDRATEPRESCALER_8;
 	taskENTER_CRITICAL();
 	VS1053_SPI.Init.BaudRatePrescaler = prescaler;
 	HAL_SPI_Init(&VS1053_SPI);
@@ -93,7 +123,7 @@ void vs1053_write_wram_16 (uint16_t addressbyte, uint16_t val)
 	vs1053_write_reg_16(SCI_WRAMADDR, addressbyte);
 	vs1053_write_reg_16(SCI_WRAM, val);
 }
-uint32_t vs1053_read_wram_32 (uint8_t addressbyte)
+uint32_t vs1053_read_wram_32 (uint16_t addressbyte)
 {	
 	//datasheet 10.11 Extra Parameters
 	uint16_t h = vs1053_read_wram_16(addressbyte),
@@ -110,7 +140,7 @@ uint32_t vs1053_read_wram_32 (uint8_t addressbyte)
 		return vs1053_read_wram_32(addressbyte);
 	
 }
-void vs1053_write_wram_32 (uint8_t addressbyte, uint32_t val){
+void vs1053_write_wram_32 (uint16_t addressbyte, uint32_t val){
 	vs1053_write_wram_16(addressbyte, val >> 16);	
 	vs1053_write_wram_16(addressbyte + 1, val);	
 }
@@ -190,11 +220,19 @@ void VS1053_Init(void)
 
 }
 
+uint8_t _vs1053_par_start = 0;
 void vs1053_update_parametric(void)
 {
-	parametric.byteRate = vs1053_read_wram_16(PAR_VERSION);
-	parametric.endFillByte = vs1053_read_wram_16(PAR_CONFIG1);
-	parametric.playSpeed = vs1053_read_wram_16(PAR_PLAY_SPEED);
+	if(_vs1053_par_start)
+		return;
+	vs1053_spiSpeed(0);
+	_vs1053_par_start = 1;
+	//parametric.byteRate = vs1053_read_wram_16(PAR_VERSION);
+	//parametric.endFillByte = vs1053_read_wram_16(PAR_CONFIG1);
+	//parametric.playSpeed = vs1053_read_wram_16(PAR_PLAY_SPEED);
+	parametric.positionMsec = vs1053_read_reg(SCI_DECODE_TIME)*1000;//vs1053_read_wram_32(PAR_POSITION_MSEC);
+	_vs1053_par_start = 0;
+	vs1053_spiSpeed(1);
 }
 
 void VS1053_play_file(FIL* file)
@@ -204,6 +242,23 @@ void VS1053_play_file(FIL* file)
 	VS1053_filechanged = 1;
 }
 
+uint8_t VS1053_getState(void)
+{
+	return VS1053_curState;
+}
+void VS1053_pause(void)
+{
+	if(VS1053_curState == PLAYER_PLAY)
+		VS1053_curState = PLAYER_PAUSE;
+}
+void VS1053_unpause(void)
+{
+	if(VS1053_curState == PLAYER_PAUSE)
+		VS1053_curState = PLAYER_PLAY;
+}
+
+uint8_t _VS1053_curState = PLAYER_STOP;
+FIL* _VS1053_curFile = 0;
 void VS1053_thread(void  * argument)
 {
 	slog("VS1053_thread");
@@ -214,9 +269,14 @@ void VS1053_thread(void  * argument)
 	slog("VS1053_thread started");
 	vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
 	while(1)
-	{
+	{		
 		while(_VS1053_curState != PLAYER_STOP && VS1053_filechanged != 1 && (VS1053_curFile == _VS1053_curFile || VS1053_curFile == 0) && _VS1053_curFile != 0)
 		{
+			while(VS1053_curState == PLAYER_PAUSE) //PAUSE
+			{
+				vs1053_update_parametric(); 
+				osDelay(50);
+			}
 			last = _VS1053_curState;
 			while(HAL_GPIO_ReadPin(VS1053_DREQ) == GPIO_PIN_RESET)
 			{
@@ -228,8 +288,7 @@ void VS1053_thread(void  * argument)
 						_VS1053_curState = PLAYER_STOP;
 					}
 					need = 0;
-					
-					vs1053_update_parametric(); 
+					//vs1053_update_parametric();
 				}
 				if(VSvolume != VScurvolume)
 				{
@@ -253,9 +312,9 @@ void VS1053_thread(void  * argument)
 			if(_VS1053_curState != PLAYER_STOP)
 			{
 				taskENTER_CRITICAL();
-				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select control
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_RESET); //Select data
 				HAL_SPI_Transmit(&VS1053_SPI, buf, br, 1);      //trasmit data
-				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //Select control
+				HAL_GPIO_WritePin(VS1053_xDCS, GPIO_PIN_SET);   //deSelect data
 				taskEXIT_CRITICAL();
 			
 				need = 1;
@@ -298,6 +357,7 @@ void VS1053_thread(void  * argument)
 		{
 			slog("Start play");
 			_VS1053_curState = PLAYER_PLAY;
+			vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
 			vs1053_write_reg_16(SCI_DECODE_TIME, 0); //reset time
 			_VS1053_curFile = VS1053_curFile;
 			VS1053_filechanged  = 0;

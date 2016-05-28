@@ -102,7 +102,11 @@ void sys_gui_menu_draw(void)
 		gui_lable(app_getByID(app_getCur())->name, 32, h*1, 128 - 32, h, 0, 0); //curapp name
 	else
 		gui_lable("none", 32, h*1, 128 - 32, h, 0, 0); //curapp none
-
+	gui_setOrigin(32, h*2 + SYS_GUI_HEADER_HIGHT);
+	if(VS1053_get_player() != 0)
+	{
+		VS1053_get_player()->drawMenu();
+	}
 }
 void sys_gui_menu_update(void)
 {
@@ -140,11 +144,28 @@ uint8_t sys_gui_menu_input_handler(int8_t key, uint32_t arg)
 					return SYS_HANDLED;
 				}
 				break;
+			case 2: //mus
+				if(key == 0 && arg == KEYBOARD_UP)
+				{
+					if(VS1053_get_player() != 0)
+					{
+						app_set(VS1053_get_player()->appID);
+						sys_gui_menu_appsel_close();
+					}
+					return SYS_HANDLED;
+				}
+				if(VS1053_get_player() != 0)
+				{
+					if(VS1053_get_player()->input_handlerMenu(key, arg) == SYS_HANDLED)
+						return SYS_HANDLED;
+				}
+				break;
 			case 4: //debug
 				if(key == 0 && (arg == KEYBOARD_UP))
 				{
 					sys_gui_debug_start();
 					sys_gui_menu_close();
+					return SYS_HANDLED;
 				}
 				break;
 		}

@@ -6,6 +6,7 @@
 
 AppInfo* fm(void);
 
+void fm_open_folder(char* path);
 
 uint8_t fm_start(void);
 uint8_t fm_stop(void);
@@ -16,5 +17,8 @@ uint8_t fm_input_handler(int8_t key, uint32_t arg);
 
 uint32_t count_files(char* path);
 uint32_t count_folders(char* path);
+
+
+void _fm_open_folder_free(void);
 
 #endif

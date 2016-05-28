@@ -67,17 +67,23 @@ typedef struct {
 #include "keyboard.h"
 #include "gui.h"
 
+uint8_t VS1053_set_player(PlayerInfo* player);
+PlayerInfo* VS1053_get_player(void);
+
+uint8_t VS1053_getState(void);
+void VS1053_pause(void);
+void VS1053_unpause(void);
+
 void set_vol(uint8_t vol);
 void VS1053_Init(void);
 void VS1053_play_file(FIL* file);
+
+
 
 void VS1053_draw(void);
 uint8_t VS1053_input(uint8_t key);
 
 void VS1053_thread(void  * argument);
-
-void VS1053_set_player(PlayerInfo* player);
-PlayerInfo* VS1053_get_player(void);
 
 void vs1053_update_parametric(void);
 

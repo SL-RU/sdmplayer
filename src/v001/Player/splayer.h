@@ -7,6 +7,10 @@
 AppInfo* splayer(void);
 PlayerInfo* splayer_p(void);
 
+
+void splayer_playFile(char* path);
+
+
 uint8_t splayer_start(void);
 uint8_t splayer_stop(void);
 
