@@ -9,5 +9,7 @@
 #define SPLAYER_ID 3
 #include "splayer.h"
 
+#define FVIEW_ID 4
+#include "file_viewer.h"
 
-#define MAX_ID 3
+#define MAX_ID 4

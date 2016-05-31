@@ -66,13 +66,13 @@ uint16_t sys_draw_THREAD_delay = 10,
 
 uint8_t sys_start_threads(void)
 {
-	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, 1000);
+	osThreadDef(sys_draw_THREAD, sys_draw, osPriorityNormal, 0, 1300);
   osThreadCreate(osThread(sys_draw_THREAD), NULL);
 
 	//osThreadDef(sys_update_THREAD, sys_update, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   //osThreadCreate(osThread(sys_update_THREAD), NULL);
 	
-	osThreadDef(sys_keyboard_THREAD, sys_thread_keyboard, osPriorityNormal, 0, 1500);
+	osThreadDef(sys_keyboard_THREAD, sys_thread_keyboard, osPriorityNormal, 0, 1900);
   osThreadCreate(osThread(sys_keyboard_THREAD), NULL);
 	
 	TaskHandle_t xHandle = NULL;
@@ -80,7 +80,7 @@ uint8_t sys_start_threads(void)
 			xTaskCreate(
                     VS1053_thread,       /* Function that implements the task. */
 										"player",          /* Text name for the task. */
-                    1000,      /* Stack size in words, not bytes. */
+                    700,      /* Stack size in words, not bytes. */
                     ( void * ) 1,    /* Parameter passed into the task. */
                     osPriorityHigh,/* Priority at which the task is created. */
                     &xHandle ) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY );     /* Used to pass out the created task's handle. */

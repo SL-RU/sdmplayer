@@ -18,6 +18,18 @@ void slog(const char *format, ...)
     va_end(args);
 }
 
+void extlog(const char *format, ...)
+{
+	if(!EXTENDED_LOG)
+		return;
+	
+    va_list args;
+    va_start(args, format);
+		printf("\n");
+    vprintf(format, args);
+    va_end(args);
+}
+
 void wlog(const char *format, ...)
 {
     va_list args;

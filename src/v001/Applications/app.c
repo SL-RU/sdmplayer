@@ -10,6 +10,7 @@ AppInfo* app_getByID(uint8_t id)
 		case APP_TEST_ID: return app_test();
 		case FM_ID      : return fm();
 		case SPLAYER_ID : return splayer();
+		case FVIEW_ID   : return file_viewer();
 		default: return 0;
 	}
 }

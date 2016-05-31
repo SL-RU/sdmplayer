@@ -222,6 +222,7 @@ uint8_t gui_list_input(GUI_ListData* gui_CurList, int8_t key)
 		{
 			gui_CurList->ClickHandler(gui_CurList->selectedItem, gui_CurList->items[gui_CurList->selectedItem]->arg, GUI_CLICK);
 		}
+		return SYS_HANDLED;
 	}
 	return SYS_NOT_HANDLED;
 }

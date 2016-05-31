@@ -13,9 +13,13 @@
 #define LOG_TO_EEPROM 1
 #define LOG_TO_STD    1
 
+#define EXTENDED_LOG 1
+
 uint8_t sys_debug_init(void);
 
 void slog(const char *format, ...); //Log something
+
+void extlog(const char *format, ...); //extended log
 
 void wlog(const char *format, ...); //Log warning
 
