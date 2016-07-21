@@ -475,6 +475,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\printf.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

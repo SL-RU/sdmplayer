@@ -496,11 +496,6 @@
               <FilePath>..\System\system.c</FilePath>
             </File>
             <File>
-              <FileName>sys_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\System\sys_debug.c</FilePath>
-            </File>
-            <File>
               <FileName>sys_gui.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\sys_gui.c</FilePath>
@@ -529,6 +524,11 @@
               <FileName>ssd1306.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\ssd1306.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\sys_debug.c</FilePath>
             </File>
             <File>
               <FileName>hardware.c</FileName>
